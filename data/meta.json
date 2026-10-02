@@ -1,6 +1,1 @@
-{
-  "pub_snapshot_date": "2026-09-09",
-  "raw_count": 449,
-  "last_collected_at": "2026-09-09T09:53:18+09:00",
-  "source": "나라장터(g2b.go.kr) 공공데이터개방표준서비스 Open API"
-}
+{"pub_snapshot_date":"2026-10-03","raw_count":241,"last_collected_at":"2026-10-03T04:52:20.102328+09:00","source":"나라장터(g2b.go.kr) 입찰공고정보서비스(BidPublicInfoService) Open API"}
