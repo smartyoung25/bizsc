@@ -23,6 +23,7 @@ import json
 import os
 import sys
 import time
+import traceback
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -188,15 +189,16 @@ def main():
     if not service_key:
         print("환경변수 G2B_SERVICE_KEY 가 설정되지 않았습니다. "
               "GitHub Actions Secret에 등록된 값이 워크플로에서 전달되고 있는지 확인하세요.",
-              file=sys.stderr)
+              file=sys.stderr, flush=True)
         sys.exit(1)
+    print(f"[서비스키] 길이 {len(service_key)}자로 확인됨", flush=True)
 
     now = datetime.now(KST)
     begin = now - timedelta(days=LOOKBACK_DAYS)
     begin_dt = begin.strftime("%Y%m%d0000")
     end_dt = now.strftime("%Y%m%d2359")
 
-    print(f"[수집 범위] {begin_dt} ~ {end_dt}")
+    print(f"[수집 범위] {begin_dt} ~ {end_dt}", flush=True)
 
     raw_count = 0
     filtered = []
@@ -204,10 +206,13 @@ def main():
 
     for op_code, business_label in OPERATIONS:
         for kw in KEYWORDS:
+            print(f"[조회] {business_label} / {kw}", flush=True)
             try:
                 items = fetch_all(service_key, op_code, kw, begin_dt, end_dt)
-            except Exception as e:
-                print(f"API 호출 실패 ({business_label} / {kw}): {e}", file=sys.stderr)
+            except Exception:
+                print(f"API 호출 실패 ({business_label} / {kw}):", file=sys.stderr, flush=True)
+                traceback.print_exc()
+                sys.stderr.flush()
                 sys.exit(1)
 
             raw_count += len(items)
@@ -258,4 +263,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except BaseException:
+        print("예상치 못한 오류로 중단되었습니다:", file=sys.stderr, flush=True)
+        traceback.print_exc()
+        sys.stderr.flush()
+        sys.exit(1)

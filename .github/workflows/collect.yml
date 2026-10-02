@@ -24,7 +24,8 @@ jobs:
       - name: 데이터 수집 실행
         env:
           G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
-        run: python scripts/collect_g2b.py
+          PYTHONUNBUFFERED: "1"
+        run: python -u scripts/collect_g2b.py
 
       - name: 변경사항 커밋 및 푸시
         run: |
