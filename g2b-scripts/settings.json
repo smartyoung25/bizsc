@@ -1,0 +1,44 @@
+{
+  "sources": {
+    "g2b": {
+      "label": "나라장터 (g2b.go.kr)",
+      "enabled": true,
+      "implemented": true
+    },
+    "bizinfo": {
+      "label": "기업마당 (bizinfo.go.kr)",
+      "enabled": true,
+      "implemented": false
+    },
+    "institutions": {
+      "label": "공공기관 개별 사이트",
+      "enabled": true,
+      "implemented": false
+    }
+  },
+  "bizinfo": {
+    "기술": [
+      "기술사업화",
+      "특허",
+      "가치평가",
+      "엑셀러레이팅"
+    ],
+    "경영": [
+      "사업계획서",
+      "자문",
+      "컨설팅"
+    ],
+    "인력지역": "서울"
+  },
+  "showAttachmentLinks": true,
+  "schedule": {
+    "frequency": "daily",
+    "time": "09:30"
+  },
+  "grading": {
+    "sDeadlineDays": 3,
+    "aDeadlineDays": 7,
+    "bDeadlineDays": 14,
+    "aKeywordMinMatches": 2
+  }
+}

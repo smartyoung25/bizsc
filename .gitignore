@@ -1,0 +1,11 @@
+node_modules/
+*.env
+*.log
+~$*
+.claude/
+email_body.html
+공공기관_웹사이트_디렉토리.docx
+나라장터_입찰공고_자동화_작업계획서.docx
+나라장터_입찰공고_자동화_작업지시서.docx
+입찰지원사업공모_통합수집_작업계획서.docx
+작업내역서.docx

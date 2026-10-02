@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나라장터 키워드 관리</title>
+<style>
+  :root {
+    --purple: #3949ab;
+    --purple-dark: #2c3a8c;
+    --text: #202124;
+    --muted: #5f6368;
+    --border: #e0e0e0;
+    --bg: #f5f5f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Malgun Gothic", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--purple);
+    color: #fff;
+    padding: 28px 24px 40px;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 400;
+  }
+  header p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.85;
+  }
+  main {
+    max-width: 640px;
+    margin: -24px auto 60px;
+    padding: 0 16px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .add-row {
+    display: flex;
+    align-items: center;
+    margin: 8px 16px 12px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 8px 16px;
+    gap: 10px;
+  }
+  .add-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: var(--text);
+    background: transparent;
+  }
+  .add-row button {
+    border: none;
+    background: var(--purple);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .add-row button:hover { background: var(--purple-dark); }
+  .icon-muted { color: var(--muted); font-size: 16px; }
+  ul.kw-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 4px 8px;
+  }
+  li.kw-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid #f1f1f1;
+  }
+  li.kw-row .kw-text {
+    flex: 1;
+    font-size: 14px;
+  }
+  li.kw-row input.edit-input {
+    flex: 1;
+    font-size: 14px;
+    padding: 4px 6px;
+    border: 1px solid var(--purple);
+    border-radius: 4px;
+    outline: none;
+  }
+  .row-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn:hover { background: #f1f1f1; color: var(--text); }
+  .empty {
+    padding: 20px 16px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .status {
+    max-width: 640px;
+    margin: 0 auto 16px;
+    padding: 0 16px;
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 16px;
+  }
+  .status.saved { color: #1e8e3e; }
+  footer {
+    max-width: 640px;
+    margin: 0 auto 60px;
+    padding: 0 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>나라장터 키워드 관리</h1>
+    <p>매주 월요일 입찰공고 검색에 사용할 검색/제외 키워드를 관리합니다.</p>
+  </header>
+  <main>
+    <div class="status" id="status"></div>
+
+    <section class="card">
+      <div class="card-title"><span id="include-count">검색 키워드 (0)</span></div>
+      <div class="add-row">
+        <span class="icon-muted">🔍</span>
+        <input id="include-input" type="text" placeholder="검색 키워드 추가...">
+        <button id="include-add" title="추가">+</button>
+      </div>
+      <ul class="kw-list" id="include-list"></ul>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span id="exclude-count">제외 키워드 (0)</span></div>
+      <div class="add-row">
+        <span class="icon-muted">🚫</span>
+        <input id="exclude-input" type="text" placeholder="제외 키워드 추가...">
+        <button id="exclude-add" title="추가">+</button>
+      </div>
+      <ul class="kw-list" id="exclude-list"></ul>
+    </section>
+  </main>
+  <footer>
+    이 목록은 keywords.json에 저장되며, fetch_g2b.js가 다음 실행 시(수동 실행 또는 매주 월요일 자동 실행) 그대로 사용합니다.
+  </footer>
+
+<script>
+let state = { include: [], exclude: [] };
+
+async function load() {
+  const res = await fetch('/api/keywords');
+  state = await res.json();
+  render();
+}
+
+async function persist(msg) {
+  const res = await fetch('/api/keywords', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state),
+  });
+  state = await res.json();
+  render();
+  flashStatus(msg || '저장됨');
+}
+
+let statusTimer;
+function flashStatus(text) {
+  const el = document.getElementById('status');
+  el.textContent = text;
+  el.classList.add('saved');
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { el.textContent = ''; el.classList.remove('saved'); }, 1500);
+}
+
+function render() {
+  renderList('include');
+  renderList('exclude');
+  document.getElementById('include-count').textContent = `검색 키워드 (${state.include.length})`;
+  document.getElementById('exclude-count').textContent = `제외 키워드 (${state.exclude.length})`;
+}
+
+function renderList(type) {
+  const ul = document.getElementById(`${type}-list`);
+  ul.innerHTML = '';
+  if (state[type].length === 0) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = '등록된 키워드가 없습니다.';
+    ul.appendChild(li);
+    return;
+  }
+  state[type].forEach((word, idx) => {
+    const li = document.createElement('li');
+    li.className = 'kw-row';
+
+    const text = document.createElement('span');
+    text.className = 'kw-text';
+    text.textContent = word;
+
+    const actions = document.createElement('div');
+    actions.className = 'row-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'icon-btn';
+    editBtn.title = '수정';
+    editBtn.textContent = '✏️';
+    editBtn.onclick = () => startEdit(li, type, idx, word);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'icon-btn';
+    delBtn.title = '삭제';
+    delBtn.textContent = '🗑️';
+    delBtn.onclick = () => {
+      state[type].splice(idx, 1);
+      persist(`"${word}" 삭제됨`);
+    };
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    li.appendChild(text);
+    li.appendChild(actions);
+    ul.appendChild(li);
+  });
+}
+
+function startEdit(li, type, idx, word) {
+  li.innerHTML = '';
+  const input = document.createElement('input');
+  input.className = 'edit-input';
+  input.value = word;
+  const finish = () => {
+    const v = input.value.trim();
+    if (v) state[type][idx] = v;
+    persist(v ? `"${v}"로 수정됨` : '수정 취소됨');
+  };
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') finish();
+    if (e.key === 'Escape') render();
+  };
+  input.onblur = finish;
+  li.appendChild(input);
+  input.focus();
+  input.select();
+}
+
+function setupAdd(type) {
+  const input = document.getElementById(`${type}-input`);
+  const btn = document.getElementById(`${type}-add`);
+  const add = () => {
+    const v = input.value.trim();
+    if (!v) return;
+    if (state[type].includes(v)) { flashStatus('이미 있는 키워드입니다'); return; }
+    state[type].push(v);
+    input.value = '';
+    persist(`"${v}" 추가됨`);
+  };
+  btn.onclick = add;
+  input.onkeydown = (e) => { if (e.key === 'Enter') add(); };
+}
+
+setupAdd('include');
+setupAdd('exclude');
+load();
+</script>
+</body>
+</html>

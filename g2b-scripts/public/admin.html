@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>입찰·지원사업·공모 수집 관리자 화면</title>
+<style>
+  :root {
+    --purple: #3949ab;
+    --purple-dark: #2c3a8c;
+    --text: #202124;
+    --muted: #5f6368;
+    --border: #e0e0e0;
+    --bg: #f5f5f7;
+    --ok: #1e8e3e;
+    --ok-soft: #e6f4ea;
+    --pending: #b06000;
+    --pending-soft: #fdf0e0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Malgun Gothic", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--purple);
+    color: #fff;
+    padding: 24px 24px 0;
+  }
+  header h1 { margin: 0 0 4px; font-size: 24px; font-weight: 400; }
+  header p { margin: 0 0 16px; font-size: 13px; opacity: 0.85; }
+  nav.tabs { display: flex; gap: 4px; }
+  nav.tabs button {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.75);
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  nav.tabs button.active { color: #fff; border-bottom-color: #fff; font-weight: 600; }
+  main { max-width: 760px; margin: 24px auto 60px; padding: 0 16px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .card-title {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 8px; font-size: 15px; font-weight: 600; color: var(--muted);
+  }
+  .card-body { padding: 0 20px 16px; }
+  .add-row {
+    display: flex; align-items: center; margin: 8px 16px 12px;
+    border: 1px solid var(--border); border-radius: 24px; padding: 8px 16px; gap: 10px;
+  }
+  .add-row input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; }
+  .add-row button {
+    border: none; background: var(--purple); color: #fff; width: 28px; height: 28px;
+    border-radius: 50%; font-size: 18px; line-height: 1; cursor: pointer;
+  }
+  ul.kw-list { list-style: none; margin: 0; padding: 0 4px 8px; }
+  li.kw-row { display: flex; align-items: center; padding: 10px 16px; border-top: 1px solid #f1f1f1; }
+  li.kw-row .kw-text { flex: 1; font-size: 14px; }
+  .icon-btn {
+    border: none; background: none; cursor: pointer; width: 28px; height: 28px;
+    border-radius: 50%; color: var(--muted); font-size: 14px;
+  }
+  .icon-btn:hover { background: #f1f1f1; }
+  .empty { padding: 16px; color: var(--muted); font-size: 13px; }
+
+  .source-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-top: 1px solid #f1f1f1;
+  }
+  .source-row:first-child { border-top: none; }
+  .source-name { font-size: 14px; font-weight: 600; }
+  .source-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .status-badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-left: 8px;
+  }
+  .status-badge.ok { background: var(--ok-soft); color: var(--ok); }
+  .status-badge.pending { background: var(--pending-soft); color: var(--pending); }
+
+  .switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: 0.15s;
+  }
+  .slider::before {
+    content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%; transition: 0.15s;
+  }
+  .switch input:checked + .slider { background: var(--purple); }
+  .switch input:checked + .slider::before { transform: translateX(18px); }
+
+  .field-group { padding: 12px 20px 4px; }
+  .field-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .field-group .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag { background: #eef0f8; color: var(--purple); font-size: 12px; padding: 3px 10px; border-radius: 999px; }
+  .field-group input[type="text"] {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px;
+  }
+
+  details.field-section { border-top: 1px solid #f1f1f1; }
+  details.field-section summary {
+    padding: 12px 20px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  details.field-section summary .count { color: var(--muted); font-weight: 400; }
+  .inst-search { margin: 0 20px 10px; }
+  .inst-search input {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px;
+  }
+  ul.inst-list { list-style: none; margin: 0; padding: 0 20px 12px; }
+  li.inst-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #f6f6f6; font-size: 13px;
+  }
+  li.inst-row:first-child { border-top: none; }
+  li.inst-row .name { flex: 1; }
+  li.inst-row .site { color: var(--muted); font-size: 12px; }
+  input[type="checkbox"].inst-check { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid #f1f1f1; }
+  .settings-row:first-child { border-top: none; }
+  .settings-row .label { font-size: 14px; }
+  .settings-row .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .num-input { width: 64px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-size: 13px; }
+  .time-input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+  .save-note { font-size: 12px; color: var(--ok); min-height: 16px; padding: 0 20px 10px; }
+  footer { max-width: 760px; margin: 0 auto 60px; padding: 0 16px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  #panel-results .card-title select {
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 13px; background: #fff;
+  }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 4px 20px 12px;
+  }
+  .stats .stat { background: #f7f7fb; border-radius: 8px; padding: 10px 14px; }
+  .stats .stat .num { font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 700; color: var(--purple); }
+  .stats .stat .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 12px; }
+  .toolbar input[type="search"] {
+    flex: 1 1 200px; padding: 7px 12px; border-radius: 18px; border: 1px solid var(--border); font-size: 13px; outline: none;
+  }
+  .chip {
+    border: 1px solid var(--border); background: #fff; color: var(--muted); border-radius: 999px;
+    padding: 5px 12px; font-size: 12px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: #eef0f8; color: var(--purple); border-color: var(--purple); font-weight: 600; }
+  .table-scroll { overflow-x: auto; padding: 0 20px 8px; }
+  #result-table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 620px; }
+  #result-table th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted);
+    padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  #result-table td { padding: 8px 10px; border-bottom: 1px solid #f1f1f1; vertical-align: top; }
+  #result-table td.title a { color: var(--text); text-decoration: none; }
+  #result-table td.title a:hover { color: var(--purple); text-decoration: underline; }
+  #result-table tr:hover td { background: #fafafd; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>입찰·지원사업·공모 수집 관리자</h1>
+    <p>검색 키워드, 수집 대상 사이트, 표시 옵션, 실행 설정을 관리합니다.</p>
+    <nav class="tabs">
+      <button data-panel="panel-keywords" class="active">키워드</button>
+      <button data-panel="panel-sites">사이트 관리</button>
+      <button data-panel="panel-display">표시 설정</button>
+      <button data-panel="panel-run">실행·등급</button>
+      <button data-panel="panel-results">결과</button>
+    </nav>
+  </header>
+  <main>
+
+    <section id="panel-keywords" class="panel active">
+      <div class="card">
+        <div class="card-title">검색 키워드 (g2b) <span id="include-count"></span></div>
+        <div class="add-row">
+          <span>🔍</span>
+          <input id="include-input" type="text" placeholder="검색 키워드 추가...">
+          <button id="include-add">+</button>
+        </div>
+        <ul class="kw-list" id="include-list"></ul>
+      </div>
+      <div class="card">
+        <div class="card-title">제외 키워드 (g2b) <span id="exclude-count"></span></div>
+        <div class="add-row">
+          <span>🚫</span>
+          <input id="exclude-input" type="text" placeholder="제외 키워드 추가...">
+          <button id="exclude-add">+</button>
+        </div>
+        <ul class="kw-list" id="exclude-list"></ul>
+      </div>
+    </section>
+
+    <section id="panel-sites" class="panel">
+      <div class="card">
+        <div class="card-title">데이터 소스</div>
+        <div id="source-list"></div>
+      </div>
+      <div class="card" id="bizinfo-card">
+        <div class="card-title">기업마당 (bizinfo.go.kr) 분야별 키워드</div>
+        <div class="field-group">
+          <label>기술 분야 키워드</label>
+          <div class="tag-list" id="bizinfo-tech-tags"></div>
+          <label>경영 분야 키워드</label>
+          <div class="tag-list" id="bizinfo-mgmt-tags"></div>
+          <label>인력 분야 — 지역 조건</label>
+          <input type="text" id="bizinfo-region" placeholder="예: 서울">
+        </div>
+      </div>
+      <div class="card" id="inst-card">
+        <div class="card-title">공공기관 개별 사이트 (59개) <span id="inst-summary" style="font-weight:400;color:var(--muted)"></span></div>
+        <div class="inst-search"><input type="text" id="inst-search" placeholder="기관명 검색..."></div>
+        <div id="inst-groups"></div>
+      </div>
+    </section>
+
+    <section id="panel-display" class="panel">
+      <div class="card">
+        <div class="card-title">표시 설정</div>
+        <div class="settings-row">
+          <div>
+            <div class="label">첨부파일(상세페이지) 링크 표시</div>
+            <div class="sub">실제 파일은 다운로드하지 않습니다 — 결과물에 링크만 표시할지 여부입니다.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="attach-toggle"><span class="slider"></span></label>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-run" class="panel">
+      <div class="card">
+        <div class="card-title">실행 주기</div>
+        <div class="settings-row">
+          <div class="label">자동 실행 시각</div>
+          <input type="text" class="time-input" id="schedule-time" placeholder="09:30">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">등급 기준값 (S/A/B/C)</div>
+        <div class="settings-row">
+          <div class="label">S등급: 마감 며칠 이내</div>
+          <input type="number" class="num-input" id="grade-s">
+        </div>
+        <div class="settings-row">
+          <div class="label">A등급: 마감 며칠 이내</div>
+          <input type="number" class="num-input" id="grade-a">
+        </div>
+        <div class="settings-row">
+          <div class="label">B등급: 마감 며칠 이내</div>
+          <input type="number" class="num-input" id="grade-b">
+        </div>
+        <div class="settings-row">
+          <div class="label">A등급 인정 최소 키워드 매칭 수</div>
+          <input type="number" class="num-input" id="grade-kw-min">
+        </div>
+      </div>
+      <button id="settings-save" style="margin:0 0 20px;padding:10px 20px;border:none;border-radius:6px;background:var(--purple);color:#fff;font-size:14px;cursor:pointer;">설정 저장</button>
+      <div class="save-note" id="settings-status"></div>
+    </section>
+
+    <section id="panel-results" class="panel">
+      <div class="card">
+        <div class="card-title">
+          <span>수집 결과</span>
+          <select id="result-date"></select>
+        </div>
+        <div class="stats" id="result-stats"></div>
+        <div class="toolbar">
+          <input type="search" id="result-search" placeholder="공고명 또는 기관명 검색...">
+          <button class="chip" data-filter="all" aria-pressed="true">전체</button>
+          <button class="chip" data-filter="prespec">사전규격공고 제외</button>
+        </div>
+        <div class="table-scroll">
+          <table id="result-table">
+            <thead>
+              <tr>
+                <th data-key="업무구분">업무구분</th>
+                <th data-key="구분">구분</th>
+                <th data-key="공고명">공고명</th>
+                <th data-key="공고기관">공고기관</th>
+                <th data-key="게시일시">게시일시</th>
+                <th data-key="입찰마감일시">입찰마감일시</th>
+              </tr>
+            </thead>
+            <tbody id="result-tbody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="result-empty" hidden>표시할 결과가 없습니다.</div>
+      </div>
+    </section>
+
+  </main>
+  <footer>
+    키워드는 변경 즉시 저장됩니다. 사이트 관리(토글·기관 활성화)도 변경 즉시 저장됩니다. 표시 설정/실행·등급 값은 "설정 저장" 버튼을 눌러야 반영됩니다.<br>
+    ⚠ bizinfo.go.kr, 공공기관 개별 사이트 수집 로직은 아직 구현되지 않았습니다 — 이 화면에서 설정한 값은 향후 구현 시 사용됩니다.
+  </footer>
+
+<script>
+let kwState = { include: [], exclude: [] };
+let instState = { 기관목록: [] };
+let settingsState = null;
+
+// ---------- 탭 ----------
+document.querySelectorAll('nav.tabs button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach((b) => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel).classList.add('active');
+  });
+});
+
+// ---------- 키워드 ----------
+async function loadKeywords() {
+  const res = await fetch('/api/keywords');
+  kwState = await res.json();
+  renderKeywords();
+}
+async function persistKeywords() {
+  const res = await fetch('/api/keywords', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(kwState),
+  });
+  kwState = await res.json();
+  renderKeywords();
+}
+function renderKeywords() {
+  renderKwList('include'); renderKwList('exclude');
+  document.getElementById('include-count').textContent = `(${kwState.include.length})`;
+  document.getElementById('exclude-count').textContent = `(${kwState.exclude.length})`;
+}
+function renderKwList(type) {
+  const ul = document.getElementById(`${type}-list`);
+  ul.innerHTML = '';
+  if (kwState[type].length === 0) {
+    ul.innerHTML = '<li class="empty">등록된 키워드가 없습니다.</li>';
+    return;
+  }
+  kwState[type].forEach((word, idx) => {
+    const li = document.createElement('li');
+    li.className = 'kw-row';
+    li.innerHTML = `<span class="kw-text"></span>`;
+    li.querySelector('.kw-text').textContent = word;
+    const del = document.createElement('button');
+    del.className = 'icon-btn'; del.textContent = '🗑️';
+    del.onclick = () => { kwState[type].splice(idx, 1); persistKeywords(); };
+    li.appendChild(del);
+    ul.appendChild(li);
+  });
+}
+function setupAdd(type) {
+  const input = document.getElementById(`${type}-input`);
+  const btn = document.getElementById(`${type}-add`);
+  const add = () => {
+    const v = input.value.trim();
+    if (!v || kwState[type].includes(v)) return;
+    kwState[type].push(v); input.value = ''; persistKeywords();
+  };
+  btn.onclick = add;
+  input.onkeydown = (e) => { if (e.key === 'Enter') add(); };
+}
+setupAdd('include'); setupAdd('exclude');
+
+// ---------- 사이트 관리 ----------
+async function loadSources() {
+  const res = await fetch('/api/settings');
+  settingsState = await res.json();
+  renderSources();
+  renderBizinfo();
+  renderDisplaySettings();
+  renderRunSettings();
+}
+async function persistSettings(silent) {
+  const res = await fetch('/api/settings', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settingsState),
+  });
+  settingsState = await res.json();
+  if (!silent) {
+    const el = document.getElementById('settings-status');
+    el.textContent = '저장됨';
+    setTimeout(() => { el.textContent = ''; }, 1500);
+  }
+}
+function renderSources() {
+  const el = document.getElementById('source-list');
+  el.innerHTML = '';
+  Object.entries(settingsState.sources).forEach(([key, src]) => {
+    const row = document.createElement('div');
+    row.className = 'source-row';
+    const badge = src.implemented
+      ? '<span class="status-badge ok">구현됨</span>'
+      : '<span class="status-badge pending">계획 단계</span>';
+    row.innerHTML = `
+      <div>
+        <div class="source-name">${src.label}${badge}</div>
+        <div class="source-meta">${key}</div>
+      </div>
+      <label class="switch"><input type="checkbox" ${src.enabled ? 'checked' : ''}><span class="slider"></span></label>
+    `;
+    row.querySelector('input').addEventListener('change', (e) => {
+      settingsState.sources[key].enabled = e.target.checked;
+      persistSettings(true);
+    });
+    el.appendChild(row);
+  });
+}
+function renderBizinfo() {
+  const techEl = document.getElementById('bizinfo-tech-tags');
+  const mgmtEl = document.getElementById('bizinfo-mgmt-tags');
+  techEl.innerHTML = settingsState.bizinfo.기술.map(t => `<span class="tag">${t}</span>`).join('');
+  mgmtEl.innerHTML = settingsState.bizinfo.경영.map(t => `<span class="tag">${t}</span>`).join('');
+  document.getElementById('bizinfo-region').value = settingsState.bizinfo.인력지역;
+  document.getElementById('bizinfo-region').onchange = (e) => {
+    settingsState.bizinfo.인력지역 = e.target.value;
+    persistSettings(true);
+  };
+}
+function renderDisplaySettings() {
+  document.getElementById('attach-toggle').checked = settingsState.showAttachmentLinks;
+  document.getElementById('attach-toggle').onchange = (e) => {
+    settingsState.showAttachmentLinks = e.target.checked;
+    persistSettings(true);
+  };
+}
+function renderRunSettings() {
+  document.getElementById('schedule-time').value = settingsState.schedule.time;
+  document.getElementById('grade-s').value = settingsState.grading.sDeadlineDays;
+  document.getElementById('grade-a').value = settingsState.grading.aDeadlineDays;
+  document.getElementById('grade-b').value = settingsState.grading.bDeadlineDays;
+  document.getElementById('grade-kw-min').value = settingsState.grading.aKeywordMinMatches;
+}
+document.getElementById('settings-save').addEventListener('click', () => {
+  settingsState.schedule.time = document.getElementById('schedule-time').value.trim();
+  settingsState.grading.sDeadlineDays = Number(document.getElementById('grade-s').value);
+  settingsState.grading.aDeadlineDays = Number(document.getElementById('grade-a').value);
+  settingsState.grading.bDeadlineDays = Number(document.getElementById('grade-b').value);
+  settingsState.grading.aKeywordMinMatches = Number(document.getElementById('grade-kw-min').value);
+  persistSettings(false);
+});
+
+// ---------- 공공기관 목록 ----------
+async function loadInstitutions() {
+  const res = await fetch('/api/institutions');
+  instState = await res.json();
+  renderInstitutions();
+}
+async function persistInstitutions() {
+  await fetch('/api/institutions', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(instState),
+  });
+}
+function renderInstitutions() {
+  const q = document.getElementById('inst-search').value.trim().toLowerCase();
+  const groupsEl = document.getElementById('inst-groups');
+  groupsEl.innerHTML = '';
+  const enabledCount = instState.기관목록.filter(r => r.활성화).length;
+  const confirmedCount = instState.기관목록.filter(r => r.경로확정).length;
+  document.getElementById('inst-summary').textContent = `활성 ${enabledCount} · 경로확정 ${confirmedCount}`;
+
+  const byField = {};
+  instState.기관목록.forEach((r, idx) => {
+    if (q && !r.기관명.toLowerCase().includes(q)) return;
+    (byField[r.분야] = byField[r.분야] || []).push({ ...r, _idx: idx });
+  });
+
+  Object.entries(byField).forEach(([field, list]) => {
+    const details = document.createElement('details');
+    details.className = 'field-section';
+    details.open = !!q;
+    const summary = document.createElement('summary');
+    summary.innerHTML = `<span>${field}</span><span class="count">${list.length}개</span>`;
+    details.appendChild(summary);
+    const ul = document.createElement('ul');
+    ul.className = 'inst-list';
+    list.forEach((r) => {
+      const li = document.createElement('li');
+      li.className = 'inst-row';
+      const badge = r.경로확정 ? '<span class="status-badge ok">경로확정</span>' : '<span class="status-badge pending">확인필요</span>';
+      li.innerHTML = `
+        <input type="checkbox" class="inst-check" ${r.활성화 ? 'checked' : ''}>
+        <span class="name">${r.기관명}${r.약칭 ? ' (' + r.약칭 + ')' : ''}</span>
+        <span class="site">${r.홈페이지}</span>
+        ${badge}
+      `;
+      li.querySelector('.inst-check').addEventListener('change', (e) => {
+        instState.기관목록[r._idx].활성화 = e.target.checked;
+        persistInstitutions();
+        renderInstitutions();
+      });
+      ul.appendChild(li);
+    });
+    details.appendChild(ul);
+    groupsEl.appendChild(details);
+  });
+}
+document.getElementById('inst-search').addEventListener('input', renderInstitutions);
+
+// ---------- 결과 ----------
+let resultRows = [];
+let resultFilter = 'all';
+
+async function loadResultList() {
+  const res = await fetch('/api/results/list');
+  const files = await res.json();
+  const sel = document.getElementById('result-date');
+  if (files.length === 0) {
+    sel.innerHTML = '<option>결과 파일 없음</option>';
+    renderResultStats([]);
+    renderResultTable([]);
+    return;
+  }
+  sel.innerHTML = files.map((f) => `<option value="${f.date}">${f.label}</option>`).join('');
+  sel.onchange = () => loadResult(sel.value);
+  loadResult(files[0].date);
+}
+async function loadResult(date) {
+  const res = await fetch(`/api/results?date=${date}`);
+  if (!res.ok) { resultRows = []; renderResultStats([]); renderResultTable([]); return; }
+  const data = await res.json();
+  resultRows = data.rows;
+  renderResultStats(resultRows);
+  renderResultTable(resultRows);
+}
+function renderResultStats(rows) {
+  const el = document.getElementById('result-stats');
+  const prespec = rows.filter((r) => r['구분'] === '사전규격공고').length;
+  el.innerHTML = `
+    <div class="stat"><div class="num">${rows.length}</div><div class="lbl">전체 건수</div></div>
+    <div class="stat"><div class="num">${prespec}</div><div class="lbl">사전규격공고</div></div>
+    <div class="stat"><div class="num">${rows.length - prespec}</div><div class="lbl">정규 입찰공고</div></div>
+  `;
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function renderResultTable(rows) {
+  const q = document.getElementById('result-search').value.trim().toLowerCase();
+  let list = rows.filter((r) => {
+    if (resultFilter === 'prespec' && r['구분'] === '사전규격공고') return false;
+    if (q) {
+      const hay = `${r['공고명']} ${r['공고기관']}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  const tbody = document.getElementById('result-tbody');
+  const empty = document.getElementById('result-empty');
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+  tbody.innerHTML = list.map((r) => `
+    <tr>
+      <td>${escapeHtml(r['업무구분'])}</td>
+      <td>${escapeHtml(r['구분'])}</td>
+      <td class="title">${r['링크'] ? `<a href="${escapeHtml(r['링크'])}" target="_blank" rel="noopener">${escapeHtml(r['공고명'])}</a>` : escapeHtml(r['공고명'])}</td>
+      <td>${escapeHtml(r['공고기관'])}</td>
+      <td>${escapeHtml(r['게시일시'])}</td>
+      <td>${escapeHtml(r['입찰마감일시'])}</td>
+    </tr>
+  `).join('');
+}
+document.getElementById('result-search').addEventListener('input', () => renderResultTable(resultRows));
+document.querySelectorAll('#panel-results .chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#panel-results .chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+    chip.setAttribute('aria-pressed', 'true');
+    resultFilter = chip.dataset.filter;
+    renderResultTable(resultRows);
+  });
+});
+
+loadKeywords();
+loadSources();
+loadInstitutions();
+loadResultList();
+</script>
+</body>
+</html>
