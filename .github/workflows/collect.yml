@@ -1,9 +1,9 @@
-name: 나라장터 주간 데이터 수집
+name: 나라장터 일일 데이터 수집
 
 on:
   schedule:
-    # 매주 월요일 00:10 KST (UTC 기준 일요일 15:10)
-    - cron: "10 15 * * 0"
+    # 매일 00:10 KST (UTC 기준 전날 15:10)
+    - cron: "10 15 * * *"
   workflow_dispatch: {}
 
 permissions:

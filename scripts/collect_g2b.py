@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-나라장터(g2b.go.kr) 공공데이터개방표준서비스 Open API에서
-입찰공고정보(getDataSetOpnStdBidPblancInfo)를 수집해
-data/records.json / data/meta.json 을 갱신하는 스크립트.
+나라장터(g2b.go.kr) 입찰공고정보서비스(BidPublicInfoService) Open API에서
+입찰공고를 수집해 data/records.json / data/meta.json 을 갱신하는 스크립트.
 
-- 실행 주체: GitHub Actions (.github/workflows/collect.yml, 매주 1회)
+- 실행 주체: GitHub Actions (.github/workflows/collect.yml, 매일 1회)
 - 필요 환경변수: G2B_SERVICE_KEY (data.go.kr에서 발급받은 서비스키,
   GitHub Actions Secret으로 등록되어 있어야 함)
 
-이 스크립트는 나라장터 전체 공고가 아니라, 대시보드가 다루는 주제
-(창업·기술사업화·지식재산·산학협력·R&D 등)에 해당하는 공고만
-공고명(bidNtceNm) 키워드 매칭으로 걸러서 저장합니다.
-필요에 따라 KEYWORDS 목록을 조정하세요.
+과거에는 PubDataOpnStdService(공공데이터개방표준서비스)를 호출했으나, 해당
+서비스는 이 키로 활용신청이 되어 있지 않아 "서비스 접근 거부" 오류로 계속
+실패했다. BidPublicInfoService는 같은 서비스키로 이미 정상 동작이 확인된
+엔드포인트이므로 이걸로 교체한다(/g2b-scripts/fetch_g2b.js 와 동일 패턴).
+
+이 API는 bidNtceNm(공고명) 키워드가 완전 일치 부분문자열 검색이라, 복합
+문구가 아닌 단어 단위로 KEYWORDS에 등록해야 한다. KEYWORDS/EXCLUDE_KEYWORDS는
+g2b-scripts/keywords.json 과 동일한 목록을 유지한다(해당 파일을 수정하면
+여기도 같이 갱신할 것).
 """
 
 import json
@@ -25,16 +29,28 @@ from datetime import datetime, timedelta, timezone
 
 KST = timezone(timedelta(hours=9))
 
-BASE_URL = "https://apis.data.go.kr/1230000/ao/PubDataOpnStdService"
-ENDPOINT = "getDataSetOpnStdBidPblancInfo"
+BASE_URL = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService"
 
-# 대시보드가 다루는 주제와 맞는 공고만 남기기 위한 키워드 필터.
-# 공고명(bidNtceNm)에 아래 키워드 중 하나라도 포함되면 수집 대상으로 봅니다.
+# 업무구분별 오퍼레이션 (키워드 검색 지원 버전 = PPSSrch)
+OPERATIONS = [
+    ("getBidPblancListInfoServcPPSSrch", "용역"),
+    ("getBidPblancListInfoThngPPSSrch", "물품"),
+    ("getBidPblancListInfoCnstwkPPSSrch", "공사"),
+    ("getBidPblancListInfoFrgcptPPSSrch", "외자"),
+    ("getBidPblancListInfoEtcPPSSrch", "기타"),
+]
+
+# g2b-scripts/keywords.json 과 동일한 목록 (단어 단위로 OR 검색).
 KEYWORDS = [
-    "창업", "기술사업화", "지식재산", "특허", "산학협력", "기술개발",
-    "기술이전", "벤처", "스타트업", "기술지원", "기술평가", "R&D",
-    "연구개발", "사업화", "기술혁신", "기술료", "지식재산권", "발명",
-    "농업기술", "농산업", "스마트팜",
+    "농업", "스마트농업", "지식재산", "연구개발", "사업화", "타당성분석",
+    "식품", "외식", "스마트팜", "창업", "액셀러레이팅", "엑셀러레이팅",
+    "가치", "특허", "개발협력",
+]
+
+EXCLUDE_KEYWORDS = [
+    "구매", "기계", "폐기물", "공사", "건축", "구입", "홍보", "설치",
+    "제작", "시제품", "건립", "회계", "트랙터", "농업용수", "손실보상",
+    "콘서트", "지하수", "특허공법", "기자재", "장치", "장비", "급식", "보험",
 ]
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
@@ -45,18 +61,17 @@ META_PATH = os.path.join(DATA_DIR, "meta.json")
 # 레코드는 매 실행 시 정리합니다 (원문 공고는 어차피 마감되므로 보관 의미가 적음).
 RETENTION_DAYS = 120
 
-# API는 1회 호출당 입찰공고일시 범위를 최대 1개월로 제한합니다.
-# 매주 실행되므로 최근 10일치를 겹치게 조회해 유실을 방지합니다.
+# 매일 실행되지만, 누락 방지를 위해 최근 10일치를 겹치게 조회합니다.
 LOOKBACK_DAYS = 10
 
 
-def api_request(service_key: str, params: dict) -> dict:
+def api_request(service_key: str, op_code: str, params: dict) -> dict:
     query = {
         "ServiceKey": service_key,
         "type": "json",
         **params,
     }
-    url = f"{BASE_URL}/{ENDPOINT}?{urllib.parse.urlencode(query)}"
+    url = f"{BASE_URL}/{op_code}?{urllib.parse.urlencode(query)}"
     req = urllib.request.Request(url, headers={"User-Agent": "bizsc-collector/1.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:
         raw = resp.read().decode("utf-8")
@@ -111,80 +126,44 @@ def unwrap_items(data: dict):
     return item_list, total_count
 
 
-def fetch_all(service_key: str, begin_dt: str, end_dt: str):
+def fetch_all(service_key: str, op_code: str, keyword: str, begin_dt: str, end_dt: str):
     all_items = []
     page_no = 1
-    num_of_rows = 500
+    num_of_rows = 100
     while True:
-        data = api_request(service_key, {
-            "bidNtceBgnDt": begin_dt,
-            "bidNtceEndDt": end_dt,
-            "numOfRows": num_of_rows,
+        data = api_request(service_key, op_code, {
+            "inqryDiv": "1",
+            "inqryBgnDt": begin_dt,
+            "inqryEndDt": end_dt,
             "pageNo": page_no,
+            "numOfRows": num_of_rows,
+            "bidNtceNm": keyword,
         })
         items, total_count = unwrap_items(data)
         all_items.extend(items)
         if len(all_items) >= total_count or not items:
             break
         page_no += 1
-        time.sleep(0.3)
+        time.sleep(0.2)
     return all_items
 
 
-def fmt_datetime(date_str, time_str=None):
-    """API의 날짜(YYYYMMDD)/시간(HHMM) 필드를 'YYYY-MM-DD HH:MM:SS' 형태로 정규화."""
-    if not date_str:
-        return ""
-    date_str = str(date_str).strip()
-    # 이미 'YYYY-MM-DD ...' 형태로 오는 필드도 있음
-    if "-" in date_str:
-        return date_str[:19]
-    if len(date_str) != 8:
-        return date_str
-    y, m, d = date_str[0:4], date_str[4:6], date_str[6:8]
-    hh, mm = "00", "00"
-    if time_str:
-        time_str = str(time_str).strip()
-        if len(time_str) >= 4:
-            hh, mm = time_str[0:2], time_str[2:4]
-    return f"{y}-{m}-{d} {hh}:{mm}:00"
+def is_excluded(title: str) -> bool:
+    title = title or ""
+    return any(kw in title for kw in EXCLUDE_KEYWORDS)
 
 
-def build_link(item: dict) -> str:
-    url = item.get("bidNtceUrl") or ""
-    if url:
-        return url
-    # bidNtceUrl이 없는 경우, 공고번호 기반으로 g2b 상세 링크를 재구성 (베스트 에포트)
-    bid_no = item.get("bidNtceNo") or ""
-    bid_ord = item.get("bidNtceOrd") or "000"
-    if not bid_no:
-        return ""
-    if bid_no.startswith("R") and "BD" in bid_no:
-        return f"https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo={bid_no}&bidPbancOrd={bid_ord}"
-    return f"https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo={bid_no}&bidPbancOrd={bid_ord}"
-
-
-def matches_keywords(title: str) -> bool:
-    if not title:
-        return False
-    return any(kw in title for kw in KEYWORDS)
-
-
-def map_item(item: dict) -> dict:
-    title = item.get("bidNtceNm", "")
-    gubun = item.get("bidNtceSttusNm", "") or "등록공고"
-    posted = fmt_datetime(item.get("bidNtceDate"), item.get("bidNtceBgn"))
-    closed = fmt_datetime(item.get("bidClseDate"), item.get("bidClseTm"))
+def map_item(item: dict, business_label: str) -> dict:
     return {
-        "업무구분": item.get("bsnsDivNm", "") or "기타",
-        "구분": gubun,
+        "업무구분": business_label,
+        "구분": item.get("ntceKindNm", ""),
         "입찰공고번호": item.get("bidNtceNo", ""),
-        "공고명": title,
+        "공고명": item.get("bidNtceNm", ""),
         "공고기관": item.get("ntceInsttNm", ""),
-        "수요기관": item.get("dmndInsttNm", "") or item.get("ntceInsttNm", ""),
-        "게시일시": posted,
-        "입찰마감일시": closed,
-        "링크": build_link(item),
+        "수요기관": item.get("dminsttNm", "") or item.get("ntceInsttNm", ""),
+        "게시일시": item.get("bidNtceDt", ""),
+        "입찰마감일시": item.get("bidClseDt", ""),
+        "링크": item.get("bidNtceDtlUrl") or item.get("bidNtceUrl") or "",
     }
 
 
@@ -219,15 +198,30 @@ def main():
 
     print(f"[수집 범위] {begin_dt} ~ {end_dt}")
 
-    try:
-        raw_items = fetch_all(service_key, begin_dt, end_dt)
-    except Exception as e:
-        print(f"API 호출 실패: {e}", file=sys.stderr)
-        sys.exit(1)
+    raw_count = 0
+    filtered = []
+    seen_in_run = set()
 
-    print(f"[API 원본 수신] {len(raw_items)}건")
+    for op_code, business_label in OPERATIONS:
+        for kw in KEYWORDS:
+            try:
+                items = fetch_all(service_key, op_code, kw, begin_dt, end_dt)
+            except Exception as e:
+                print(f"API 호출 실패 ({business_label} / {kw}): {e}", file=sys.stderr)
+                sys.exit(1)
 
-    filtered = [map_item(it) for it in raw_items if matches_keywords(it.get("bidNtceNm", ""))]
+            raw_count += len(items)
+            for item in items:
+                title = item.get("bidNtceNm", "")
+                if is_excluded(title):
+                    continue
+                key = (item.get("bidNtceNo", ""), item.get("bidNtceOrd", "000"))
+                if key in seen_in_run:
+                    continue
+                seen_in_run.add(key)
+                filtered.append(map_item(item, business_label))
+
+    print(f"[API 원본 수신] {raw_count}건 (업무구분×키워드 조회 총합, 중복 포함)")
     print(f"[키워드 필터 통과] {len(filtered)}건")
 
     existing = load_json(RECORDS_PATH, [])
@@ -255,10 +249,10 @@ def main():
     print(f"[저장 완료] data/records.json 총 {len(merged)}건")
 
     meta = load_json(META_PATH, {})
-    meta["raw_count"] = len(raw_items)
+    meta["raw_count"] = raw_count
     meta["last_collected_at"] = now.isoformat()
-    meta.setdefault("pub_snapshot_date", now.strftime("%Y-%m-%d"))
-    meta.setdefault("source", "나라장터(g2b.go.kr) 공공데이터개방표준서비스 Open API")
+    meta["pub_snapshot_date"] = now.strftime("%Y-%m-%d")
+    meta["source"] = "나라장터(g2b.go.kr) 입찰공고정보서비스(BidPublicInfoService) Open API"
     save_json(META_PATH, meta)
     print("[저장 완료] data/meta.json")
 
