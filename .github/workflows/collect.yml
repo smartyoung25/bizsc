@@ -4,6 +4,11 @@ on:
   schedule:
     # 매일 00:10 KST (UTC 기준 전날 15:10)
     - cron: "10 15 * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/collect.yml"
+      - "scripts/collect_g2b.py"
   workflow_dispatch: {}
 
 permissions:
