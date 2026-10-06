@@ -9,6 +9,7 @@ on:
     paths:
       - ".github/workflows/collect.yml"
       - "scripts/collect_g2b.py"
+      - "scripts/keywords.json"
   workflow_dispatch: {}
 
 permissions:

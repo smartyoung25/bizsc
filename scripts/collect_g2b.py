@@ -41,20 +41,17 @@ OPERATIONS = [
     ("getBidPblancListInfoEtcPPSSrch", "기타"),
 ]
 
-# g2b-scripts/keywords.json 과 동일한 목록 (단어 단위로 OR 검색).
-KEYWORDS = [
-    "농업", "스마트농업", "지식재산", "연구개발", "사업화", "타당성분석",
-    "식품", "외식", "스마트팜", "창업", "액셀러레이팅", "엑셀러레이팅",
-    "가치", "특허", "개발협력",
-]
+SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(os.path.dirname(SCRIPTS_DIR), "data")
+KEYWORDS_PATH = os.path.join(SCRIPTS_DIR, "keywords.json")
 
-EXCLUDE_KEYWORDS = [
-    "구매", "기계", "폐기물", "공사", "건축", "구입", "홍보", "설치",
-    "제작", "시제품", "건립", "회계", "트랙터", "농업용수", "손실보상",
-    "콘서트", "지하수", "특허공법", "기자재", "장치", "장비", "급식", "보험",
-]
+with open(KEYWORDS_PATH, "r", encoding="utf-8") as f:
+    _kw_config = json.load(f)
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+KEYWORD_AREAS = {item["keyword"]: item["area"] for item in _kw_config["include"]}
+KEYWORDS = list(KEYWORD_AREAS.keys())
+EXCLUDE_KEYWORDS = _kw_config["exclude"]
+
 RECORDS_PATH = os.path.join(DATA_DIR, "records.json")
 META_PATH = os.path.join(DATA_DIR, "meta.json")
 
@@ -154,9 +151,11 @@ def is_excluded(title: str) -> bool:
     return any(kw in title for kw in EXCLUDE_KEYWORDS)
 
 
-def map_item(item: dict, business_label: str) -> dict:
+def map_item(item: dict, business_label: str, keyword: str) -> dict:
     return {
         "업무구분": business_label,
+        "검색키워드": keyword,
+        "검색영역": KEYWORD_AREAS.get(keyword, ""),
         "구분": item.get("ntceKindNm", ""),
         "입찰공고번호": item.get("bidNtceNo", ""),
         "공고명": item.get("bidNtceNm", ""),
@@ -224,7 +223,7 @@ def main():
                 if key in seen_in_run:
                     continue
                 seen_in_run.add(key)
-                filtered.append(map_item(item, business_label))
+                filtered.append(map_item(item, business_label, kw))
 
     print(f"[API 원본 수신] {raw_count}건 (업무구분×키워드 조회 총합, 중복 포함)")
     print(f"[키워드 필터 통과] {len(filtered)}건")
