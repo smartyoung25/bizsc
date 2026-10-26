@@ -203,6 +203,8 @@
   tbody tr:nth-child(even) td { background: var(--surface-alt); }
   tbody tr:hover td { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
   tbody tr:last-child td { border-bottom: none; }
+  .select-col { width: 34px; text-align: center; padding-left: 10px; padding-right: 0; }
+  .select-col input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
   td.title-cell { max-width: 420px; }
   td.title-cell a, td.title-cell button.search-link { color: var(--ink); text-decoration: none; font-weight: 600; text-align: left; background: none; border: none; padding: 0; font-family: inherit; font-size: inherit; cursor: pointer; }
   td.title-cell a:hover { color: var(--accent-ink); text-decoration: underline; }
@@ -442,6 +444,8 @@
                 <option value="50">50개씩</option>
                 <option value="100">100개씩</option>
               </select>
+              <span class="result-count" id="selected-count"></span>
+              <button type="button" id="export-selected" class="btn btn-primary" disabled>선택 항목 다운로드</button>
               <button type="button" id="export-filtered" class="btn btn-primary">검색결과 엑셀 다운로드</button>
               <button type="button" id="export-all" class="btn btn-ghost">전체 데이터 다운로드</button>
             </div>
@@ -452,6 +456,7 @@
           <table>
             <thead>
               <tr>
+                <th class="select-col"><input type="checkbox" id="select-all-rows" aria-label="현재 검색결과 전체 선택"></th>
                 <th>출처</th>
                 <th>업무구분·분야</th>
                 <th class="sortable" data-sort="구분">구분<span class="arrow">↕</span></th>
@@ -595,6 +600,8 @@
   }));
   RECORDS.forEach((r) => { r["출처"] = "나라장터"; });
   const ALL_ROWS = RECORDS.concat(PUB_AS_ROWS);
+  ALL_ROWS.forEach((r, i) => { r._rid = i; });
+  const selectedRids = new Set();
 
   const dataDates = RECORDS.map((r) => (r["게시일시"] || "").slice(0, 10)).filter(Boolean).sort();
   const MIN_DATE = dataDates[0];
@@ -896,8 +903,12 @@
       const isPub = r["출처"] === "공모·지원사업";
       const demandNote = r["수요기관"] && r["수요기관"] !== org ? `<span class="demand-note">수요기관: ${escapeHtml(r["수요기관"])}</span>` : "";
       const postDateCell = isPub ? `스냅샷 · ${PUB_SNAPSHOT_DATE}` : escapeHtml(r["게시일시"]);
+      const selectCell = ctx.selectable
+        ? `<td class="select-col"><input type="checkbox" class="row-select" data-rid="${r._rid}" ${selectedRids.has(r._rid) ? "checked" : ""}></td>`
+        : "";
       return `
       <tr>
+        ${selectCell}
         <td><span class="src-badge ${isPub ? "src-pub" : "src-g2b"}">${escapeHtml(r["출처"])}</span></td>
         <td><span class="biz-tag">${escapeHtml(r["업무구분"])}</span></td>
         <td><span class="badge badge-${escapeHtml(r["구분"])}">${escapeHtml(r["구분"])}</span></td>
@@ -920,6 +931,17 @@
         window.open("https://www.g2b.go.kr/", "_blank", "noopener");
       });
     });
+
+    if (ctx.selectable) {
+      tbody.querySelectorAll(".row-select").forEach((cb) => {
+        cb.addEventListener("change", () => {
+          const rid = Number(cb.dataset.rid);
+          if (cb.checked) selectedRids.add(rid); else selectedRids.delete(rid);
+          updateSelectionUI();
+        });
+      });
+      updateSelectionUI();
+    }
 
     renderPagination(total, pages, ctx);
     const resultEl = document.getElementById(ctx.result);
@@ -958,6 +980,20 @@
         if (panel) window.scrollTo({ top: panel.offsetTop - 12, behavior: "smooth" });
       });
     });
+  }
+
+  function updateSelectionUI() {
+    const countEl = document.getElementById("selected-count");
+    if (countEl) countEl.innerHTML = selectedRids.size ? `<strong>${selectedRids.size}</strong>건 선택됨` : "";
+    const exportBtn = document.getElementById("export-selected");
+    if (exportBtn) exportBtn.disabled = selectedRids.size === 0;
+    const headCb = document.getElementById("select-all-rows");
+    if (headCb) {
+      const filteredRids = sortRecords(filterRecords()).map((r) => r._rid);
+      const selectedInFiltered = filteredRids.filter((rid) => selectedRids.has(rid));
+      headCb.checked = filteredRids.length > 0 && selectedInFiltered.length === filteredRids.length;
+      headCb.indeterminate = selectedInFiltered.length > 0 && selectedInFiltered.length < filteredRids.length;
+    }
   }
 
   // ---------------- excel export ----------------
@@ -1017,7 +1053,7 @@
   }
 
   // ---------------- wiring ----------------
-  const searchCtx = { tbody: "tbody", empty: "empty", pagination: "pagination", result: "result-count", state: state, resultSuffix: "건 검색됨", rerender: () => renderSearchTable(), scrollTarget: "page-search" };
+  const searchCtx = { tbody: "tbody", empty: "empty", pagination: "pagination", result: "result-count", state: state, resultSuffix: "건 검색됨", rerender: () => renderSearchTable(), scrollTarget: "page-search", selectable: true };
   const overviewCtx = { tbody: "tbody-overview", empty: "empty-overview", pagination: "pagination-overview", result: "result-count-overview", state: overviewState, resultSuffix: "건 수집됨", rerender: () => renderOverviewTable(), scrollTarget: "page-overview" };
 
   function renderSearchTable() {
@@ -1136,6 +1172,19 @@
     document.getElementById("clear-quick-filter").addEventListener("click", () => { state.deadlineSoon = false; state.page = 1; syncSearchUI(); renderSearchTable(); });
     document.getElementById("export-filtered").addEventListener("click", () => exportRows(sortRecords(filterRecords()), "검색결과"));
     document.getElementById("export-all").addEventListener("click", () => exportRows(ALL_ROWS.slice(), "전체"));
+    document.getElementById("export-selected").addEventListener("click", () => {
+      const rows = ALL_ROWS.filter((r) => selectedRids.has(r._rid));
+      exportRows(rows, "선택항목");
+    });
+    document.getElementById("select-all-rows").addEventListener("change", (e) => {
+      const filtered = sortRecords(filterRecords());
+      if (e.target.checked) {
+        filtered.forEach((r) => selectedRids.add(r._rid));
+      } else {
+        filtered.forEach((r) => selectedRids.delete(r._rid));
+      }
+      renderSearchTable();
+    });
 
     // 공공기관 공모·입찰 페이지
     document.getElementById("pub-updated-2").textContent = PUB_SNAPSHOT_DATE;
