@@ -103,6 +103,7 @@
     const c = count(rows, (i) => i.cluster);
     const max = Math.max(1, ...Object.values(c));
     const kw = Object.fromEntries((META.clusters || []).map((x) => [x.name, x.keywords || []]));
+    $("cl-map").classList.toggle("has-sel", st.clusters.size > 0);
     $("cl-map").innerHTML = CLUSTER_ORDER.map((name) => {
       const n = c[name] || 0;
       const g = new Set(rows.filter((i) => i.cluster === name).map((i) => i.group)).size;
@@ -161,7 +162,31 @@
     $("cl-results").innerHTML = html;
   }
 
-  function renderAll() { renderMap(); renderList(); }
+  function renderSelbar() {
+    const bar = $("cl-selbar");
+    const desc = $("cl-map-desc");
+    if (!st.clusters.size) {
+      bar.hidden = true;
+      if (desc) desc.textContent = "타일을 누르면 해당 분야만 아래 목록에 보여줍니다 (여러 개 선택 가능)";
+      return;
+    }
+    const rows = filtered();
+    const names = [...st.clusters];
+    bar.hidden = false;
+    bar.innerHTML = `<span>선택한 분야</span>${names.map((n) => `<span class="sel-chip">${esc(n)}</span>`).join("")}
+      <span>· ${rows.length.toLocaleString()}건</span>
+      <button type="button" class="btn btn-ghost btn-sm" data-clear>선택 해제</button>`;
+    if (desc) desc.innerHTML = `<span class="cl-map-hint">✓ ${names.length}개 분야 선택 · ${rows.length.toLocaleString()}건 — 아래 목록에 표시</span>`;
+  }
+
+  function scrollToResults() {
+    const bar = $("cl-selbar");
+    const target = bar.hidden ? $("cl-results") : bar;
+    const top = target.getBoundingClientRect().top + window.scrollY - 70;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }
+
+  function renderAll() { renderMap(); renderSelbar(); renderList(); }
 
   // ---------- 칩·컨트롤 ----------
   function chipHtml(kind, val, label, n) {
@@ -194,6 +219,13 @@
       const v = t.dataset.cl;
       st.clusters.has(v) ? st.clusters.delete(v) : st.clusters.add(v);
       renderAll();
+      scrollToResults();
+    });
+    $("cl-selbar").addEventListener("click", (e) => {
+      if (!e.target.closest("[data-clear]")) return;
+      st.clusters.clear();
+      renderAll();
+      $("cl-map").scrollIntoView({ behavior: "smooth", block: "center" });
     });
     $("cl-results").addEventListener("click", (e) => {
       const g = e.target.closest(".grp-btn");
