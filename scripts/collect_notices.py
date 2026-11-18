@@ -49,7 +49,8 @@ RETENTION_DAYS = 150          # 게시일 기준 보관 기간
 CLOSED_KEEP_DAYS = 45         # 마감일이 이만큼 지난 공고는 정리
 BIZINFO_MAX_PAGES = 30        # 기업마당 HTML 목록 최대 페이지 (15건/페이지)
 BOARD_MAX_ROWS = 40           # 기관 게시판 1곳당 최대 건수
-UA = "Mozilla/5.0 (compatible; bizsc-notice-collector/1.0)"
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+      "Chrome/124.0 Safari/537.36")
 
 DATE_RE = re.compile(r"(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})")
 
@@ -75,13 +76,35 @@ def _ssl_ctx(legacy=False):
     return ctx
 
 
+def _opener(legacy):
+    # 쿠키를 받아야 목록을 보여주는 사이트(예: 국토교통부 — 쿠키 없이 요청하면 307 무한 리다이렉트)를 위해
+    # 요청마다 쿠키 저장소를 가진 opener를 쓴다.
+    import http.cookiejar
+    return urllib.request.build_opener(
+        urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
+        urllib.request.HTTPSHandler(context=_ssl_ctx(legacy)),
+    )
+
+
 def http_get(url, timeout=25, retries=2):
+    try:
+        return _http_get(url, timeout, retries)
+    except RuntimeError as e:
+        # 'www.' 없는 도메인이 DNS에서 안 잡히는 경우 www. 를 붙여 한 번 더 시도
+        host = urllib.parse.urlsplit(url).hostname or ""
+        if "Name or service not known" in str(e) and host and not host.startswith("www."):
+            return _http_get(url.replace(host, "www." + host, 1), timeout, 0)
+        raise
+
+
+def _http_get(url, timeout=25, retries=2):
     last = None
     for attempt in range(retries + 1):
         for legacy in (False, True):
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ko-KR,ko;q=0.9"})
-                with urllib.request.urlopen(req, timeout=timeout, context=_ssl_ctx(legacy)) as r:
+                req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ko-KR,ko;q=0.9",
+                                                       "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8"})
+                with _opener(legacy).open(req, timeout=timeout) as r:
                     raw = r.read()
                     ctype = r.headers.get("Content-Type", "")
                     return decode_body(raw, ctype), r.geturl()
@@ -277,40 +300,135 @@ def _resolve_href(a_tag, base):
     return ""
 
 
-def parse_board(html, base_url, limit=BOARD_MAX_ROWS):
-    """게시판 목록 HTML에서 (제목, 링크, 게시일)을 뽑는다.
-    표(<tr>) 또는 목록(<li>) 단위로 '날짜가 있고 충분히 긴 링크 텍스트'를 게시글로 본다."""
-    html = re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html, flags=re.I)
-    blocks = re.findall(r"<tr[^>]*>([\s\S]*?)</tr>", html, re.I)
-    if len(blocks) < 3:
-        blocks = re.findall(r"<li[^>]*>([\s\S]*?)</li>", html, re.I)
+TITLE_CUT = re.compile(r"\s+(담당부서|담당자|공고번호|신청기간|접수기간|첨부파일|등록일|작성일|조회수?|작성자)\b.*$")
+TITLE_TAIL = re.compile(r"(\.(pdf|hwpx?|docx?|xlsx?|zip|pptx?))?\s*(다운로드|내려받기|새로운\s*게시글|새글|new|N|첨부파일)?\s*$", re.I)
+POSTED_LABEL = re.compile(r"(등록일|작성일|게시일|공고일|등록)\s*[:：]?\s*(20\d{2}\s*[.\-/년]\s*\d{1,2}\s*[.\-/월]\s*\d{1,2})")
+RANGE_RE = re.compile(r"(20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2})[^0-9]{0,12}~\s*(20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2})")
+
+
+def clean_title(t: str) -> str:
+    t = TITLE_CUT.sub("", t).strip()
+    for _ in range(3):  # "공고.pdf 다운로드", "모집 새로운게시글 N" 처럼 꼬리가 겹친 경우
+        t2 = TITLE_TAIL.sub("", t).strip()
+        if t2 == t:
+            break
+        t = t2
+    return t
+
+
+def block_dates(text: str):
+    """블록 텍스트에서 (게시일, 신청기간 문자열)을 뽑는다. 신청기간 범위의 날짜는 게시일로 쓰지 않는다."""
+    m = POSTED_LABEL.search(text)
+    rng = RANGE_RE.search(text)
+    period = f"{norm_date(rng.group(1))} ~ {norm_date(rng.group(2))}" if rng else ""
+    if m:
+        return norm_date(m.group(2)), period
+    rest = text[:rng.start()] + " " + text[rng.end():] if rng else text
+    posted = norm_date(rest) or (norm_date(rng.group(1)) if rng else "")
+    return posted, period
+
+
+def _rows_from_blocks(blocks, base_url, limit):
     out, seen = [], set()
     for b in blocks:
         text = strip_tags(b)
-        date = norm_date(text)
+        date, period = block_dates(text)
         if not date:
             continue
         best = None
         for a in re.finditer(r"(<a\b[^>]*>)([\s\S]*?)</a>", b, re.I):
-            t = strip_tags(a.group(2))
+            t = clean_title(strip_tags(a.group(2)))
             tm = re.search(r'title\s*=\s*["\']([^"\']{8,})["\']', a.group(1))
-            if tm and len(strip_tags(tm.group(1))) > len(t):
-                t = re.sub(r"\s*(새창|새 창|페이지 이동|바로가기)\s*$", "", strip_tags(tm.group(1)))
-            if len(t) >= 8 and not any(t.startswith(w) for w in NAV_WORDS):
+            if tm:
+                tt = clean_title(re.sub(r"\s*(새창|새 창|페이지 이동|바로가기)\s*$", "", strip_tags(tm.group(1))))
+                if len(tt) > len(t):
+                    t = tt
+            if len(t) >= 8 and not any(t.startswith(w) for w in NAV_WORDS) and not DATE_RE.fullmatch(t):
                 if not best or len(t) > len(best[0]):
                     best = (t, a.group(1))
         if not best:
             continue
-        title = re.sub(r"\s*(new|N|첨부파일|새글)\s*$", "", best[0], flags=re.I).strip()
+        title = best[0]
         url = _resolve_href(best[1], base_url) or base_url
         k = (title, date)
         if k in seen:
             continue
         seen.add(k)
-        out.append((title, url, date))
+        out.append((title, url, date, period))
         if len(out) >= limit:
             break
     return out
+
+
+def _anchor_blocks(html):
+    """표·목록 구조가 아닌 <div> 카드형 게시판용: 긴 링크 하나와 그 주변(다음 링크 전까지)을 한 블록으로 본다.
+    날짜는 링크 뒤쪽을 우선 쓰고, 뒤에 없을 때만 앞쪽 200자를 본다."""
+    blocks = []
+    for m in re.finditer(r"<a\b[^>]*>[\s\S]{8,}?</a>", html, re.I):
+        after = html[m.end():m.end() + 600]
+        nxt = re.search(r"<a\b", after, re.I)
+        if nxt:
+            after = after[:nxt.start()]
+        link = html[m.start():m.end()]
+        if DATE_RE.search(strip_tags(after)):
+            blocks.append(link + after)
+        else:
+            before = html[max(0, m.start() - 200):m.start()].split("</a>")[-1]
+            ds = list(DATE_RE.finditer(before))
+            if ds:  # 앞쪽에 날짜가 여러 개면 링크에 가장 가까운 것만 남긴다
+                before = before[ds[-1].start():]
+            blocks.append(before + link)
+    return blocks
+
+
+def parse_board(html, base_url, limit=BOARD_MAX_ROWS):
+    """게시판 목록 HTML에서 (제목, 링크, 게시일)을 뽑는다.
+    표(<tr>) → 목록(<li>) → 링크 주변 텍스트 순으로 시도해 '날짜가 있고 충분히 긴 링크'를 게시글로 본다."""
+    html = re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html, flags=re.I)
+    for finder in (
+        lambda h: re.findall(r"<tr[^>]*>([\s\S]*?)</tr>", h, re.I),
+        lambda h: re.findall(r"<li[^>]*>([\s\S]*?)</li>", h, re.I),
+        lambda h: re.findall(r"<dl[^>]*>([\s\S]*?)</dl>", h, re.I),
+        _anchor_blocks,
+    ):
+        rows = _rows_from_blocks(finder(html), base_url, limit)
+        if len(rows) >= 2:
+            return rows
+    return []
+
+
+SKIP_FOLLOW = re.compile(r"login|logout|sso|search|member|join|sitemap|\.(css|js|png|jpe?g|gif)(\?|$)", re.I)
+
+
+def find_followups(html, base_url):
+    """목록이 iframe이나 자바스크립트 이동 뒤에 있는 경우 따라갈 주소 후보."""
+    cands = []
+    for pat in (r'<iframe[^>]+src=["\']([^"\']+)["\']',
+                r'http-equiv=["\']refresh["\'][^>]*url=([^"\'>\s]+)',
+                r'location(?:\.href)?\s*=\s*["\']([^"\']+)["\']'):
+        for u in re.findall(pat, html, re.I):
+            u = htmllib.unescape(u).strip()
+            if u and not u.lower().startswith(("javascript", "about:", "#")) and not SKIP_FOLLOW.search(u):
+                cands.append(urllib.parse.urljoin(base_url, u))
+    return list(dict.fromkeys(cands))[:3]
+
+
+def board_diag(html):
+    """0건일 때 원인 파악용 요약 (로그·notices_meta.json에 기록)."""
+    title = strip_tags((re.search(r"<title[^>]*>([\s\S]*?)</title>", html, re.I) or [None, ""])[1])[:60]
+    ajax = re.findall(r'(?:url|action|href)\s*[:=]\s*["\']([^"\']*(?:[Ll]ist|ajax|Ajax|json|\.do|select)[^"\']*)["\']', html)
+    return {
+        "bytes": len(html), "title": title,
+        "tr": len(re.findall(r"<tr\b", html, re.I)), "li": len(re.findall(r"<li\b", html, re.I)),
+        "dates": len(DATE_RE.findall(strip_tags(html))),
+        "long_links": len(re.findall(r"<a\b[^>]*>[^<]{8,}</a>", html, re.I)),
+        "ajax_candidates": list(dict.fromkeys(ajax))[:8],
+        "followups": find_followups(html, ""),
+    }
+
+
+HOMEPAGE_LABEL = "홈페이지 최신 공지"
+NOTICE_WORDS = re.compile(r"공고|모집|공모|입찰|선정|신청|접수|지원사업|수요조사|참여기업|설명회|제안요청")
 
 
 def collect_boards(institutions, status):
@@ -321,17 +439,55 @@ def collect_boards(institutions, status):
         targets = []
         if inst.get("공고게시판URL"):
             targets.append((inst["공고게시판URL"], "", "사업·공모 공고"))
+        elif inst.get("홈페이지"):
+            # 공고 게시판 주소를 모르는 기관은 홈페이지 첫 화면의 최신글 목록에서 공고성 글만 수집
+            home = inst["홈페이지"]
+            home = home if home.startswith("http") else "https://" + home
+            targets.append((home, "", HOMEPAGE_LABEL))
         if inst.get("게시판URL"):
             targets.append((inst["게시판URL"], "입찰·용역", "입찰 공고"))
         for url, type_hint, label in targets:
             name = f"{inst['기관명']} · {label}"
+            is_home = label == HOMEPAGE_LABEL
             try:
                 html, final = http_get(url)
-                rows = parse_board(html, final)
-                for title, link, date in rows:
+                rows = parse_board(html, final, limit=60 if is_home else BOARD_MAX_ROWS)
+                if is_home:
+                    rows = [r for r in rows if NOTICE_WORDS.search(r[0])][:20]
+                    status.append({"source": name, "url": url, "ok": True, "count": len(rows),
+                                   **({} if rows else {"note": "첫 화면에 공고성 최신글 없음"})})
+                    log(f"  [홈페이지] {name}: {len(rows)}건")
+                    for title, link, date, period in rows:
+                        out.append(item("기관 홈페이지", title, link, org=inst["기관명"], field=inst.get("분야", ""),
+                                        posted=date, period=period, key=f"{inst['기관명']}|{title}|{date}"))
+                    time.sleep(0.5)
+                    continue
+                if not rows:
+                    for nxt in find_followups(html, final):
+                        try:
+                            h2, f2 = http_get(nxt)
+                        except Exception:  # noqa: BLE001
+                            continue
+                        rows = parse_board(h2, f2)
+                        if rows:
+                            log(f"  [게시판] {name}: 연결 페이지에서 목록 발견 → {nxt}")
+                            break
+                if not rows:
+                    diag = board_diag(html)
+                    log(f"  [게시판 진단] {name}: {json.dumps(diag, ensure_ascii=False)}")
+                    status.append({"source": name, "url": url, "ok": False, "count": 0,
+                                   "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
+                                   "diag": diag})
+                    # 게시판을 못 읽으면 홈페이지 첫 화면 최신글로 대신 수집 (예: 한국연구재단 — 목록을 JS로 불러옴)
+                    if label == "사업·공모 공고" and inst.get("홈페이지"):
+                        home = inst["홈페이지"]
+                        targets.append((home if home.startswith("http") else "https://" + home, "", HOMEPAGE_LABEL))
+                    time.sleep(0.5)
+                    continue
+                for title, link, date, period in rows:
                     out.append(item(
                         "기관 홈페이지", title, link, org=inst["기관명"], field=inst.get("분야", ""),
-                        posted=date, type_hint=type_hint, key=f"{inst['기관명']}|{title}|{date}",
+                        posted=date, period=period, type_hint=type_hint, key=f"{inst['기관명']}|{title}|{date}",
                     ))
                 status.append({"source": name, "url": url, "ok": True, "count": len(rows)})
                 log(f"  [게시판] {name}: {len(rows)}건")
@@ -378,6 +534,26 @@ def seed_from_repo():
 
 
 # ---------------- 병합·정리 ----------------
+def sanitize_board_items(items):
+    """기관 게시판에서 온 항목의 제목 꼬리(첨부파일명·'새로운게시글'·담당부서/등록일 등)를 정리하고
+    제목 안에 섞여 있던 등록일·신청기간을 게시일·마감일로 옮긴다. id도 정리된 제목 기준으로 다시 만든다."""
+    out = {}
+    for it in items:
+        if it.get("source") == "기관 홈페이지":
+            raw = it["title"]
+            posted, period = block_dates(raw)
+            if POSTED_LABEL.search(raw):
+                it["posted"] = posted
+            if period and not it.get("period"):
+                it["period"] = period
+                it["deadline"] = period_dates(period)[1]
+            it["title"] = clean_title(raw)
+            it["id"] = make_id("기관 홈페이지", f"{it['org']}|{it['title']}|{it.get('posted', '')}")
+        out[it["id"]] = it
+    return list(out.values())
+
+
+
 def merge(old, new):
     by_id = {o["id"]: o for o in old}
     for n in new:
@@ -468,6 +644,7 @@ def main():
     for n in new:
         n.setdefault("first_seen", stamp)
 
+    old = sanitize_board_items(old)
     items = prune(merge(old, new))
     for it in items:  # 재분류를 위해 이전 계산 필드 제거
         for k in ("cluster", "type", "region", "group", "group_size"):

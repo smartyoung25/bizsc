@@ -34,10 +34,11 @@
     const d = dday(it.deadline);
     it._dday = d;
     it._status = d == null ? "always" : d < 0 ? "closed" : d <= 7 ? "soon" : "open";
+    it._ministry = it.ministry || it.org || "기타";
     it._hay = `${it.title} ${it.org} ${it.ministry} ${it.field} ${it.cluster} ${it.region}`.toLowerCase();
   });
 
-  const st = { clusters: new Set(), types: new Set(), sources: new Set(), status: new Set(), region: "", q: "", sort: "posted", grouped: true, expanded: new Set(), openGroups: new Set() };
+  const st = { clusters: new Set(), types: new Set(), sources: new Set(), status: new Set(), region: "", ministry: "", q: "", sort: "posted", grouped: true, expanded: new Set(), openGroups: new Set() };
 
   const count = (arr, f) => arr.reduce((m, x) => ((m[f(x)] = (m[f(x)] || 0) + 1), m), {});
 
@@ -77,6 +78,7 @@
       if (st.sources.size && !st.sources.has(i.source)) return false;
       if (st.status.size && !st.status.has(i._status)) return false;
       if (st.region && i.region !== st.region) return false;
+      if (st.ministry && i._ministry !== st.ministry) return false;
       if (terms.length && !terms.every((t) => i._hay.includes(t))) return false;
       return true;
     });
@@ -200,6 +202,14 @@
       if (m) { st.expanded.has(m.dataset.more) ? st.expanded.delete(m.dataset.more) : st.expanded.add(m.dataset.more); renderList(); }
     });
     $("cl-q").addEventListener("input", (e) => { st.q = e.target.value; renderAll(); });
+    const mc = count(ITEMS, (i) => i._ministry);
+    const ministries = Object.keys(mc).sort((a, b) => {
+      const ka = /(부|처|청|위원회)$/.test(a) ? 0 : 1, kb = /(부|처|청|위원회)$/.test(b) ? 0 : 1;
+      return ka - kb || mc[b] - mc[a];
+    });
+    $("cl-ministry").innerHTML = `<option value="">전체 소관부처·기관</option>` +
+      ministries.map((m) => `<option value="${esc(m)}">${esc(m)} (${mc[m]})</option>`).join("");
+    $("cl-ministry").addEventListener("change", (e) => { st.ministry = e.target.value; renderAll(); });
     $("cl-region").addEventListener("change", (e) => { st.region = e.target.value; renderAll(); });
     $("cl-sort").addEventListener("change", (e) => { st.sort = e.target.value; renderList(); });
     $("cl-group-toggle").addEventListener("change", (e) => { st.grouped = e.target.checked; renderList(); });
