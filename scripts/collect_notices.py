@@ -521,6 +521,8 @@ def collect_boards(institutions, status):
                                         posted=date, period=period, key=f"{inst['기관명']}|{title}|{date}"))
                     time.sleep(0.5)
                     continue
+                if rows and inst.get("공고필터"):
+                    rows = [r for r in rows if NOTICE_WORDS.search(r[0])]
                 if not rows:
                     for nxt in find_followups(html, final):
                         try:

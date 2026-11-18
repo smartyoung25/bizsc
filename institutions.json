@@ -22,8 +22,9 @@
       "활성화": true,
       "경로확정": true,
       "게시판URL": "https://www.rda.go.kr/board/board.do?mode=list&prgId=bid_bidancmEntry",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.rda.go.kr/board/board.do?mode=list&prgId=nei_ancmttEntry",
+      "공고경로확정": true,
+      "공고필터": true
     },
     {
       "분야": "농업",
@@ -176,8 +177,9 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.krei.re.kr/krei/page/23",
+      "공고경로확정": true,
+      "공고필터": true
     },
     {
       "분야": "농업",
@@ -231,8 +233,9 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.ipkorea.go.kr/board/list.do?bbsId=BBSMSTR_000000000001",
+      "공고경로확정": true,
+      "공고필터": true
     },
     {
       "분야": "특허·지식재산",
@@ -594,8 +597,9 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.kvic.or.kr/notice/kvic-notice/investment-business-notice",
+      "공고경로확정": true,
+      "공고필터": true
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -737,9 +741,10 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.lh.or.kr/board.es?mid=a10601010000&bid=0033",
+      "공고경로확정": true,
+      "공고필터": true
     }
   ],
-  "공고게시판_안내": "공고게시판URL: 사업·공모 공고 게시판 목록 주소(scripts/collect_notices.py가 매일 수집). 비어 있으면 홈페이지 첫 화면의 최신글 중 공고·모집·공모·입찰 성격의 글만 수집합니다. 사전 입력된 주소는 미검증(공고경로확정=false)이며 data/notices_meta.json의 출처별 결과로 동작 여부를 확인하세요."
+  "공고게시판_안내": "공고게시판URL: 사업·공모 공고 게시판 목록 주소(scripts/collect_notices.py가 매일 수집). 비어 있으면 홈페이지 첫 화면의 최신글 중 공고·모집·공모·입찰 성격의 글만 수집합니다. 사전 입력된 주소는 미검증(공고경로확정=false)이며 data/notices_meta.json의 출처별 결과로 동작 여부를 확인하세요. 공고필터=true인 기관은 일반 공지 게시판이라 제목에 공고·모집·공모·입찰 등이 들어간 글만 수집합니다."
 }
