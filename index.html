@@ -426,6 +426,7 @@
     <button type="button" class="page-tab" data-page="search" role="tab" aria-selected="false">검색</button>
     <button type="button" class="page-tab" data-page="pub" role="tab" aria-selected="false">공공기관별 공고</button>
     <button type="button" class="page-tab" data-page="cluster" role="tab" aria-selected="false">공고·공모 클러스터</button>
+    <button type="button" class="page-tab" data-page="bizinfo" role="tab" aria-selected="false">기업마당 지원사업</button>
   </nav>
 
   <main>
@@ -656,6 +657,41 @@
         <span class="src-status" id="cl-src-status"></span>
       </p>
     </section>
+    <section class="page" id="page-bizinfo" hidden>
+      <div class="page-heading">
+        <h2>기업마당 지원사업 지도</h2>
+        <p class="page-desc">기업마당(bizinfo.go.kr)의 자금·기술·인력·수출·판로(마케팅)·창업·경영 지원사업을 지원분야별로 묶었습니다 (<strong id="bz-updated">-</strong>).</p>
+      </div>
+      <section class="kpis" id="bz-kpis" aria-label="기업마당 지원사업 요약"></section>
+      <section class="panel" id="bz-root">
+        <div class="page-heading" style="margin:0 0 10px"><h2 style="font-size:15px">지원분야 지도</h2><p class="page-desc" id="bz-map-desc"></p></div>
+        <div class="cl-map" id="bz-map"></div>
+        <div class="page-heading" style="margin:18px 0 8px"><h2 style="font-size:15px">세부 주제</h2><p class="page-desc">선택한 지원분야 안의 주제별로 다시 거릅니다</p></div>
+        <div class="chip-group cl-depts" id="bz-topics"></div>
+      </section>
+      <section class="panel">
+        <div class="cl-filters">
+          <div class="row">
+            <input type="search" id="bz-q" placeholder="지원사업명, 기관명으로 검색..." aria-label="기업마당 지원사업 검색">
+            <select id="bz-ministry" aria-label="소관부처·지자체"></select>
+            <select id="bz-sort" aria-label="정렬">
+              <option value="deadline">마감 임박순</option>
+              <option value="posted">최신 등록순</option>
+            </select>
+            <button type="button" id="bz-export" class="btn btn-primary btn-sm">엑셀 내보내기</button>
+          </div>
+          <div class="row"><span class="toolbar-label">상태</span><div class="chip-group" id="bz-status"></div></div>
+          <div class="row"><span class="toolbar-label">지역</span><div class="chip-group" id="bz-regions"></div></div>
+        </div>
+        <div class="cl-selbar" id="bz-selbar" hidden></div>
+        <div id="bz-results"></div>
+        <div class="empty" id="bz-empty" hidden>조건에 맞는 지원사업이 없습니다.</div>
+      </section>
+      <p class="footnote">
+        지원분야는 기업마당의 분류(금융→자금·금융, 내수→판로·마케팅 등)를 그대로 따르며, 세부 주제는 공고명 키워드로 자동 분류한 결과입니다. 매일 자동 수집되며, 지원 전 반드시 원문 공고에서 접수기간과 신청 자격을 확인하세요.
+      </p>
+    </section>
+
     <p class="footnote">
       나라장터(g2b.go.kr) Open API로 매주 자동 수집된 입찰·사전규격 공고와, 기업마당·K-Startup·IPET 등에서 웹 검색으로 수집한 주요 공공기관 공모·지원사업(<strong id="pub-updated"></strong> 기준 스냅샷)을 하나의 표로 통합했습니다. 동일 나라장터 공고가 여러 주에 걸쳐 반복 수집된 경우 공고번호·구분·게시일시 기준으로 중복을 제거해 표시합니다(수집 원본 <strong id="raw-count"></strong>건 → 고유 <strong id="uniq-count"></strong>건). 모든 행은 공고명 클릭 시 실제 원문 상세페이지로 바로 이동합니다 — 나라장터는 API 응답 링크 또는 공고번호 기반 재구성 링크, 공모·지원사업은 검색으로 확인한 원문 링크입니다. 드물게 <span class="search-badge" style="display:inline-block;vertical-align:middle;">검색</span> 표시가 남은 나라장터 건은 공고번호 형식을 인식하지 못한 예외로, 클릭 시 공고번호가 클립보드에 복사되고 나라장터 홈이 새 탭으로 열립니다. 공모·지원사업 항목은 정기 자동수집이 아니므로 지원 전 원문에서 마감 여부를 다시 확인하세요 — 이 항목도 매주 자동 수집하려면 창업진흥원(K-Startup) 등 각 기관 Open API의 서비스키가 추가로 필요합니다. 통계 페이지의 카드를 클릭하면 검색 페이지로 이동해 해당 조건이 자동 적용됩니다.
     </p>
@@ -1367,5 +1403,6 @@
 </script>
 <script src="assets/notices.js"></script>
 <script src="assets/institutions.js"></script>
+<script src="assets/bizinfo.js"></script>
 </body>
 </html>
