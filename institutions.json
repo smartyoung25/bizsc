@@ -10,7 +10,9 @@
       "홈페이지": "www.mafra.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -19,7 +21,9 @@
       "홈페이지": "www.rda.go.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.rda.go.kr/board/board.do?mode=list&prgId=bid_bidancmEntry"
+      "게시판URL": "https://www.rda.go.kr/board/board.do?mode=list&prgId=bid_bidancmEntry",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -28,7 +32,9 @@
       "홈페이지": "www.forest.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -37,7 +43,9 @@
       "홈페이지": "www.mof.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -46,7 +54,9 @@
       "홈페이지": "www.nifs.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -55,7 +65,9 @@
       "홈페이지": "www.ekr.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -64,7 +76,9 @@
       "홈페이지": "www.at.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -73,7 +87,9 @@
       "홈페이지": "www.koat.or.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://koat.or.kr/board/bid/list.do"
+      "게시판URL": "https://koat.or.kr/board/bid/list.do",
+      "공고게시판URL": "https://koat.or.kr/board/notice/list.do",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -82,7 +98,9 @@
       "홈페이지": "www.epis.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -91,7 +109,9 @@
       "홈페이지": "www.apfs.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -100,7 +120,9 @@
       "홈페이지": "www.ekape.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -109,7 +131,9 @@
       "홈페이지": "www.kofpi.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -118,7 +142,9 @@
       "홈페이지": "www.nfcf.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -127,7 +153,9 @@
       "홈페이지": "www.kra.co.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -136,7 +164,9 @@
       "홈페이지": "www.nonghyup.com",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -145,7 +175,9 @@
       "홈페이지": "www.krei.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -154,7 +186,9 @@
       "홈페이지": "www.kfri.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -163,7 +197,9 @@
       "홈페이지": "www.wikim.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "농업",
@@ -172,7 +208,9 @@
       "홈페이지": "www.ipet.re.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.ipet.re.kr/Notice/biddingLV.asp"
+      "게시판URL": "https://www.ipet.re.kr/Notice/biddingLV.asp",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -181,7 +219,9 @@
       "홈페이지": "www.moip.go.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200610&parntMenuCd2=SCD0200049"
+      "게시판URL": "https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200610&parntMenuCd2=SCD0200049",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -190,7 +230,9 @@
       "홈페이지": "www.ipkorea.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -199,7 +241,9 @@
       "홈페이지": "www.kipa.org",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.kipa.org/kipa/notice/kw_0402.jsp?board_no=15"
+      "게시판URL": "https://www.kipa.org/kipa/notice/kw_0402.jsp?board_no=15",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -208,7 +252,9 @@
       "홈페이지": "www.kista.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -217,7 +263,9 @@
       "홈페이지": "www.koipa.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -226,7 +274,9 @@
       "홈페이지": "www.kiip.re.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.kiip.re.kr/board/notice/list.do?bd_gb=board&bd_cd=1&bd_item=0&po_item_gb=1&po_notice_gb=bid"
+      "게시판URL": "https://www.kiip.re.kr/board/notice/list.do?bd_gb=board&bd_cd=1&bd_item=0&po_item_gb=1&po_notice_gb=bid",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "특허·지식재산",
@@ -235,7 +285,9 @@
       "홈페이지": "www.kipi.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -244,7 +296,9 @@
       "홈페이지": "www.kiat.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "https://www.kiat.or.kr/front/board/boardContentsListPage.do?board_id=90",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -253,7 +307,9 @@
       "홈페이지": "www.keit.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "https://srome.keit.re.kr/srome/biz/perform/opnnPrpsl/retrieveTaskAnncmListView.do?prgmId=XPG201040000",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -262,7 +318,9 @@
       "홈페이지": "www.ketep.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -271,7 +329,9 @@
       "홈페이지": "www.compa.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -280,7 +340,9 @@
       "홈페이지": "www.innopolis.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -289,7 +351,9 @@
       "홈페이지": "www.nrf.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "https://www.nrf.re.kr/biz/notice/list?menu_no=362",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -298,7 +362,9 @@
       "홈페이지": "www.nst.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -307,7 +373,9 @@
       "홈페이지": "www.kistep.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -316,7 +384,9 @@
       "홈페이지": "www.ktvf.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -325,7 +395,9 @@
       "홈페이지": "www.nipa.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "https://www.nipa.kr/home/2-2",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -334,7 +406,9 @@
       "홈페이지": "www.iitp.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -343,7 +417,9 @@
       "홈페이지": "www.khidi.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -352,7 +428,9 @@
       "홈페이지": "www.keiti.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -361,7 +439,9 @@
       "홈페이지": "www.kimst.re.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -370,7 +450,9 @@
       "홈페이지": "www.tipa.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -379,7 +461,9 @@
       "홈페이지": "www.kibo.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -388,7 +472,9 @@
       "홈페이지": "www.auri.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -397,7 +483,9 @@
       "홈페이지": "www.kautm.net",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "기술사업화",
@@ -406,7 +494,9 @@
       "홈페이지": "www.kath.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -415,7 +505,9 @@
       "홈페이지": "www.mss.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -424,7 +516,9 @@
       "홈페이지": "www.kised.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -433,7 +527,9 @@
       "홈페이지": "www.k-startup.go.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do"
+      "게시판URL": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -442,7 +538,9 @@
       "홈페이지": "portal.smes.go.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -451,7 +549,9 @@
       "홈페이지": "www.kosmes.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -460,7 +560,9 @@
       "홈페이지": "www.semas.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -469,7 +571,9 @@
       "홈페이지": "www.sbiz24.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -478,7 +582,9 @@
       "홈페이지": "start.kosmes.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -487,7 +593,9 @@
       "홈페이지": "www.kvic.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -496,7 +604,9 @@
       "홈페이지": "www.kvca.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -505,7 +615,9 @@
       "홈페이지": "www.jointips.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -514,7 +626,9 @@
       "홈페이지": "home.kban.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -523,7 +637,9 @@
       "홈페이지": "k-aia.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -532,7 +648,10 @@
       "홈페이지": "kesia.or.kr",
       "활성화": true,
       "경로확정": false,
-      "게시판URL": ""
+      "게시판URL": "",
+      "공고게시판URL": "",
+      "공고경로확정": false
     }
-  ]
+  ],
+  "공고게시판_안내": "공고게시판URL: 사업·공모 공고 게시판 목록 주소(scripts/collect_notices.py가 매일 수집). 값을 채우면 다음 실행부터 반영됩니다. 사전 입력된 주소는 미검증(공고경로확정=false)이며 data/notices_meta.json의 출처별 수집 결과로 동작 여부를 확인하세요."
 }
