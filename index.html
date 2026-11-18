@@ -305,7 +305,17 @@
   .cl-tile { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; font-family: inherit; color: var(--ink); display: flex; flex-direction: column; gap: 6px; transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease; }
   .cl-tile:hover { border-color: var(--accent-line); box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .cl-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .cl-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .cl-tile[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--accent-soft-strong); box-shadow: 0 0 0 3px var(--accent-soft); padding: 11px 13px; }
+  .cl-tile[aria-pressed="true"] .cl-name::before { content: "✓ "; color: var(--accent-ink); }
+  .cl-map.has-sel .cl-tile[aria-pressed="false"] { opacity: 0.45; }
+  .cl-map.has-sel .cl-tile[aria-pressed="false"]:hover { opacity: 0.85; }
+  .cl-selbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent-ink); font-size: 13px; font-weight: 600; scroll-margin-top: 70px; }
+  .cl-selbar .sel-chip { background: var(--surface); border: 1px solid var(--accent-line); border-radius: 999px; padding: 2px 10px; font-size: 12px; }
+  .cl-selbar button { margin-left: auto; }
+  .cl-depts .chip { font-size: 12.5px; padding: 6px 12px; }
+  .cl-depts.has-sel .chip[aria-pressed="false"] { opacity: 0.5; }
+  .cl-depts .chip[aria-pressed="true"]::before { content: "✓"; font-weight: 800; }
+  .cl-map-hint { font-size: 12px; color: var(--accent-ink); font-weight: 700; }
   .cl-tile .cl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .cl-tile .cl-name { font-size: 13.5px; font-weight: 800; }
   .cl-tile .cl-n { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--accent-ink); }
@@ -352,6 +362,12 @@
   .src-status span.ok { border-color: var(--ok); color: var(--ok); }
   .src-status span.fail { border-color: var(--danger); color: var(--danger); }
   @media (max-width: 640px) {
+    .cl-map { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .cl-tile { padding: 10px 11px; gap: 5px; }
+    .cl-tile[aria-pressed="true"] { padding: 9px 10px; }
+    .cl-tile .cl-name { font-size: 12.5px; }
+    .cl-tile .cl-n { font-size: 16px; }
+    .cl-tile .cl-kw, .cl-tile .cl-sub { display: none; }
     .cl-item { grid-template-columns: 1fr; }
     .cl-item .r { grid-row: auto; grid-column: 1; flex-direction: row; align-items: center; }
   }
@@ -560,8 +576,10 @@
       </div>
       <section class="kpis" id="cl-kpis" aria-label="공고 클러스터 요약"></section>
       <section class="panel">
-        <div class="page-heading" style="margin:0 0 10px"><h2 style="font-size:15px">분야 클러스터 지도</h2><p class="page-desc">타일을 누르면 해당 분야만 봅니다 (여러 개 선택 가능)</p></div>
+        <div class="page-heading" style="margin:0 0 10px"><h2 style="font-size:15px">분야 클러스터 지도</h2><p class="page-desc" id="cl-map-desc">타일을 누르면 해당 분야만 아래 목록에 보여줍니다 (여러 개 선택 가능)</p></div>
         <div class="cl-map" id="cl-map"></div>
+        <div class="page-heading" style="margin:18px 0 8px"><h2 style="font-size:15px">부처별</h2><p class="page-desc">소관부처를 누르면 해당 부처 공고만 봅니다 (여러 개 선택 가능, 분야와 함께 적용)</p></div>
+        <div class="chip-group cl-depts" id="cl-depts" aria-label="소관부처 선택"></div>
       </section>
       <section class="panel">
         <div class="cl-filters">
@@ -582,6 +600,7 @@
             <label class="tg" style="margin-left:auto"><input type="checkbox" id="cl-group-toggle" checked> 유사공고 묶어 보기</label>
           </div>
         </div>
+        <div class="cl-selbar" id="cl-selbar" hidden></div>
         <div id="cl-results"></div>
         <div class="empty" id="cl-empty" hidden>조건에 맞는 공고가 없습니다.</div>
       </section>
