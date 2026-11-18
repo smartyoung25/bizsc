@@ -30,15 +30,51 @@
     const d = new Date(dl + "T00:00:00");
     return isNaN(d) ? null : Math.round((d - today) / 86400000);
   }
+  // 공공기관 → 소관부처 (공고에 소관부처가 비어 있는 기관 게시판 수집분을 부처별로 묶기 위함)
+  const PARENT = {
+    "농림축산식품부": ["한국농어촌공사", "한국농수산식품유통공사", "농림수산식품교육문화정보원", "농업정책보험금융원",
+      "축산물품질평가원", "농림식품기술기획평가원", "한국마사회"],
+    "농촌진흥청": ["한국농업기술진흥원"],
+    "산림청": ["한국임업진흥원", "산림조합중앙회"],
+    "해양수산부": ["국립수산과학원", "해양수산과학기술진흥원"],
+    "지식재산처": ["한국발명진흥회", "한국특허전략개발원", "한국지식재산보호원", "한국특허정보원", "한국지식재산연구원", "지식재산처(구 특허청)"],
+    "산업통상부": ["한국산업기술진흥원", "한국산업기술기획평가원", "한국에너지기술평가원", "한국산업단지공단",
+      "대한무역투자진흥공사", "한국산업기술시험원"],
+    "과학기술정보통신부": ["과학기술사업화진흥원", "연구개발특구진흥재단", "한국연구재단", "국가과학기술연구회",
+      "한국과학기술기획평가원", "정보통신산업진흥원", "정보통신기획평가원", "한국식품연구원", "세계김치연구소"],
+    "보건복지부": ["한국보건산업진흥원"],
+    "기후에너지환경부": ["한국환경산업기술원"],
+    "중소벤처기업부": ["창업진흥원", "K-Startup 창업지원포털", "중소벤처24", "중소벤처기업진흥공단", "소상공인시장진흥공단",
+      "소상공인24", "청년창업사관학교", "한국벤처투자", "중소기업기술정보진흥원", "기술보증기금", "TIPS 프로그램 공식포털"],
+    "국토교통부": ["국토교통과학기술진흥원", "한국국토정보공사", "한국토지주택공사"],
+  };
+  const ORG_TO_DEPT = {};
+  Object.entries(PARENT).forEach(([dept, orgs]) => orgs.forEach((o) => { ORG_TO_DEPT[o] = dept; }));
+  // 같은 부처의 이전·다른 표기 통일
+  const DEPT_ALIAS = { "산업통상자원부": "산업통상부", "특허청": "지식재산처", "환경부": "기후에너지환경부" };
+  const CENTRAL_RE = /(부|처|청|위원회)$/;
+  const LOCAL_DEPT = "지자체·기타 기관";
+  function deptOf(i) {
+    const cands = [i.ministry, i.org].map((x) => (x || "").replace(/\(구 [^)]*\)/, "").trim()).filter(Boolean);
+    for (const c of cands) {
+      const n = DEPT_ALIAS[c] || c;
+      if (/KOTRA|대한무역투자진흥공사/.test(n)) return "산업통상부";
+      if (CENTRAL_RE.test(n) && !/(시|군|구|도)청$|본부$|지사$|센터$|(광역시|특별시|특별자치|도청|시청|군청|구청)/.test(n)) return n;
+    }
+    if (ORG_TO_DEPT[i.org]) return ORG_TO_DEPT[i.org];
+    return LOCAL_DEPT;
+  }
+
   ITEMS.forEach((it) => {
     const d = dday(it.deadline);
     it._dday = d;
     it._status = d == null ? "always" : d < 0 ? "closed" : d <= 7 ? "soon" : "open";
     it._ministry = it.ministry || it.org || "기타";
+    it._dept = deptOf(it);
     it._hay = `${it.title} ${it.org} ${it.ministry} ${it.field} ${it.cluster} ${it.region}`.toLowerCase();
   });
 
-  const st = { clusters: new Set(), types: new Set(), sources: new Set(), status: new Set(), region: "", ministry: "", q: "", sort: "posted", grouped: true, expanded: new Set(), openGroups: new Set() };
+  const st = { clusters: new Set(), depts: new Set(), types: new Set(), sources: new Set(), status: new Set(), region: "", ministry: "", q: "", sort: "posted", grouped: true, expanded: new Set(), openGroups: new Set() };
 
   const count = (arr, f) => arr.reduce((m, x) => ((m[f(x)] = (m[f(x)] || 0) + 1), m), {});
 
@@ -79,6 +115,7 @@
       if (st.status.size && !st.status.has(i._status)) return false;
       if (st.region && i.region !== st.region) return false;
       if (st.ministry && i._ministry !== st.ministry) return false;
+      if (ignore !== "dept" && st.depts.size && !st.depts.has(i._dept)) return false;
       if (terms.length && !terms.every((t) => i._hay.includes(t))) return false;
       return true;
     });
@@ -162,21 +199,35 @@
     $("cl-results").innerHTML = html;
   }
 
+  function renderDepts() {
+    const rows = filtered("dept");
+    const c = count(rows, (i) => i._dept);
+    const all = count(ITEMS, (i) => i._dept);
+    const names = Object.keys(all).sort((a, b) => (a === LOCAL_DEPT) - (b === LOCAL_DEPT) || all[b] - all[a]);
+    $("cl-depts").innerHTML = names.map((n) =>
+      `<button type="button" class="chip dept-chip" data-dept="${esc(n)}" aria-pressed="${st.depts.has(n)}">${esc(n)} <span class="n">${c[n] || 0}</span></button>`
+    ).join("");
+    $("cl-depts").classList.toggle("has-sel", st.depts.size > 0);
+  }
+
   function renderSelbar() {
     const bar = $("cl-selbar");
     const desc = $("cl-map-desc");
-    if (!st.clusters.size) {
+    if (!st.clusters.size && !st.depts.size) {
       bar.hidden = true;
       if (desc) desc.textContent = "타일을 누르면 해당 분야만 아래 목록에 보여줍니다 (여러 개 선택 가능)";
       return;
     }
     const rows = filtered();
     const names = [...st.clusters];
+    const depts = [...st.depts];
     bar.hidden = false;
-    bar.innerHTML = `<span>선택한 분야</span>${names.map((n) => `<span class="sel-chip">${esc(n)}</span>`).join("")}
+    bar.innerHTML = (names.length ? `<span>분야</span>${names.map((n) => `<span class="sel-chip">${esc(n)}</span>`).join("")}` : "")
+      + (depts.length ? `<span>부처</span>${depts.map((n) => `<span class="sel-chip">${esc(n)}</span>`).join("")}` : "")
+      + `
       <span>· ${rows.length.toLocaleString()}건</span>
       <button type="button" class="btn btn-ghost btn-sm" data-clear>선택 해제</button>`;
-    if (desc) desc.innerHTML = `<span class="cl-map-hint">✓ ${names.length}개 분야 선택 · ${rows.length.toLocaleString()}건 — 아래 목록에 표시</span>`;
+    if (desc) desc.innerHTML = `<span class="cl-map-hint">✓ ${[names.length ? names.length + "개 분야" : "", depts.length ? depts.length + "개 부처" : ""].filter(Boolean).join(" · ")} 선택 · ${rows.length.toLocaleString()}건 — 아래 목록에 표시</span>`;
   }
 
   function scrollToResults() {
@@ -186,7 +237,7 @@
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }
 
-  function renderAll() { renderMap(); renderSelbar(); renderList(); }
+  function renderAll() { renderMap(); renderDepts(); renderSelbar(); renderList(); }
 
   // ---------- 칩·컨트롤 ----------
   function chipHtml(kind, val, label, n) {
@@ -221,9 +272,18 @@
       renderAll();
       scrollToResults();
     });
+    $("cl-depts").addEventListener("click", (e) => {
+      const t = e.target.closest(".dept-chip");
+      if (!t) return;
+      const v = t.dataset.dept;
+      st.depts.has(v) ? st.depts.delete(v) : st.depts.add(v);
+      renderAll();
+      scrollToResults();
+    });
     $("cl-selbar").addEventListener("click", (e) => {
       if (!e.target.closest("[data-clear]")) return;
       st.clusters.clear();
+      st.depts.clear();
       renderAll();
       $("cl-map").scrollIntoView({ behavior: "smooth", block: "center" });
     });
@@ -252,7 +312,7 @@
     if (typeof XLSX === "undefined") { alert("엑셀 라이브러리를 불러오지 못했습니다."); return; }
     const rows = sortRows(filtered()).map((i) => ({
       분야클러스터: i.cluster, 공고유형: i.type, 상태: STATUS.find((s) => s.key === i._status).label,
-      공고명: i.title, 기관: i.org, 소관부처: i.ministry, 출처: i.source, 지역: i.region,
+      공고명: i.title, 기관: i.org, 소관부처: i._dept === LOCAL_DEPT ? (i.ministry || "") : i._dept, 출처: i.source, 지역: i.region,
       신청기간: i.period, 마감일: i.deadline, 게시일: i.posted, 유사묶음수: i.group_size, 링크: i.url,
     }));
     const ws = XLSX.utils.json_to_sheet(rows);

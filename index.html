@@ -312,6 +312,9 @@
   .cl-selbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent-ink); font-size: 13px; font-weight: 600; scroll-margin-top: 70px; }
   .cl-selbar .sel-chip { background: var(--surface); border: 1px solid var(--accent-line); border-radius: 999px; padding: 2px 10px; font-size: 12px; }
   .cl-selbar button { margin-left: auto; }
+  .cl-depts .chip { font-size: 12.5px; padding: 6px 12px; }
+  .cl-depts.has-sel .chip[aria-pressed="false"] { opacity: 0.5; }
+  .cl-depts .chip[aria-pressed="true"]::before { content: "✓"; font-weight: 800; }
   .cl-map-hint { font-size: 12px; color: var(--accent-ink); font-weight: 700; }
   .cl-tile .cl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .cl-tile .cl-name { font-size: 13.5px; font-weight: 800; }
@@ -575,6 +578,8 @@
       <section class="panel">
         <div class="page-heading" style="margin:0 0 10px"><h2 style="font-size:15px">분야 클러스터 지도</h2><p class="page-desc" id="cl-map-desc">타일을 누르면 해당 분야만 아래 목록에 보여줍니다 (여러 개 선택 가능)</p></div>
         <div class="cl-map" id="cl-map"></div>
+        <div class="page-heading" style="margin:18px 0 8px"><h2 style="font-size:15px">부처별</h2><p class="page-desc">소관부처를 누르면 해당 부처 공고만 봅니다 (여러 개 선택 가능, 분야와 함께 적용)</p></div>
+        <div class="chip-group cl-depts" id="cl-depts" aria-label="소관부처 선택"></div>
       </section>
       <section class="panel">
         <div class="cl-filters">
