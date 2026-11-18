@@ -136,20 +136,40 @@ ERROR_MESSAGES = {
 }
 
 
+def _find_header(obj, depth=0):
+    """응답 어디에 있든 resultCode를 가진 header를 찾는다.
+    정상 응답은 {"response": {"header": ...}} 이지만, 오류 응답은
+    {"nkoneps.com.response.ResponseError": {"header": ...}} 등 다른 형태로 온다."""
+    if not isinstance(obj, dict) or depth > 4:
+        return None
+    h = obj.get("header")
+    if isinstance(h, dict) and "resultCode" in h:
+        return h
+    if "resultCode" in obj:
+        return obj
+    for v in obj.values():
+        found = _find_header(v, depth + 1)
+        if found:
+            return found
+    return None
+
+
 def unwrap_items(data: dict):
-    response = data.get("response", data)
-    header = response.get("header", {})
-    code = str(header.get("resultCode", ""))
+    response = data.get("response") if isinstance(data, dict) else None
+    header = _find_header(data) or {}
+    code = str(header.get("resultCode", "")).strip()
 
     if code == "03":
         # No Data는 오류가 아니라 "해당 기간에 결과 없음"으로 처리
         return [], 0
 
-    if code not in ("00", ""):
-        msg = ERROR_MESSAGES.get(code, header.get("resultMsg", "알 수 없는 오류"))
-        raise RuntimeError(f"API 오류 (코드 {code}): {msg}")
+    if code not in ("00", "0", "000"):
+        # 헤더가 아예 없거나 정상 코드가 아니면 오류로 본다 (이전에는 빈 결과로 조용히 넘어갔음)
+        msg = ERROR_MESSAGES.get(code, header.get("resultMsg") or header.get("returnAuthMsg") or "")
+        snippet = json.dumps(data, ensure_ascii=False)[:300]
+        raise RuntimeError(f"API 오류 (코드 {code or '없음'}): {msg} | 응답: {snippet}")
 
-    body = response.get("body", {})
+    body = (response or {}).get("body", {}) or {}
     items = body.get("items", [])
     if isinstance(items, dict) and "item" in items:
         item_list = items["item"]
@@ -162,6 +182,9 @@ def unwrap_items(data: dict):
 
     total_count = int(body.get("totalCount", 0) or 0)
     return item_list, total_count
+
+
+_SAMPLE_LOGGED = False
 
 
 def fetch_all(service_key: str, op_code: str, keyword: str, begin_dt: str, end_dt: str):
@@ -177,6 +200,10 @@ def fetch_all(service_key: str, op_code: str, keyword: str, begin_dt: str, end_d
             "numOfRows": num_of_rows,
             "bidNtceNm": keyword,
         })
+        global _SAMPLE_LOGGED
+        if not _SAMPLE_LOGGED:
+            _SAMPLE_LOGGED = True
+            print(f"[응답 예시] {json.dumps(data, ensure_ascii=False)[:400]}", flush=True)
         items, total_count = unwrap_items(data)
         all_items.extend(items)
         if len(all_items) >= total_count or not items:
@@ -281,6 +308,12 @@ def main():
         sys.exit(1)
 
     print(f"[API 원본 수신] {raw_count}건 (업무구분×키워드 조회 총합, 중복 포함)")
+    if raw_count == 0:
+        # 10일치 × 75개 조회가 모두 0건인 것은 정상적이지 않다 (2026-11-10 이후 이런 상태로
+        # '성공' 처리되며 데이터가 멈춰 있었음). 기존 데이터를 보존하고 실패로 종료해 알림이 가게 한다.
+        print("모든 조회 결과가 0건입니다. API 응답 형식이나 서비스키 상태를 확인하세요 "
+              "(위 [응답 예시] 참고). 데이터를 저장하지 않고 종료합니다.", file=sys.stderr, flush=True)
+        sys.exit(1)
     print(f"[키워드 필터 통과] {len(filtered)}건")
 
     existing = load_json(RECORDS_PATH, [])
