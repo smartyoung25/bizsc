@@ -301,7 +301,7 @@ def _resolve_href(a_tag, base):
 
 
 TITLE_CUT = re.compile(r"\s+(담당부서|담당자|공고번호|신청기간|접수기간|첨부파일|등록일|작성일|조회수?|작성자)\b.*$")
-TITLE_TAIL = re.compile(r"(\.(pdf|hwpx?|docx?|xlsx?|zip|pptx?))?\s*(다운로드|내려받기|새로운\s*게시글|새글|new|N|첨부파일)?\s*$", re.I)
+TITLE_TAIL = re.compile(r"(\.(pdf|hwpx?|docx?|xlsx?|zip|pptx?))?\s*(다운로드|내려받기|상세\s*보기|자세히\s*보기|새로운\s*게시글|새글|new|N|첨부파일)?\s*$", re.I)
 POSTED_LABEL = re.compile(r"(등록일|작성일|게시일|공고일|등록)\s*[:：]?\s*(20\d{2}\s*[.\-/년]\s*\d{1,2}\s*[.\-/월]\s*\d{1,2})")
 RANGE_RE = re.compile(r"(20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2})[^0-9]{0,12}~\s*(20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2})")
 
