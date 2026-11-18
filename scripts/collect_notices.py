@@ -428,6 +428,53 @@ def board_diag(html):
 
 
 HOMEPAGE_LABEL = "홈페이지 최신 공지"
+# 메뉴 링크 문구 → 우선순위 (낮을수록 먼저 시도)
+BOARD_MENU = [
+    (re.compile(r"^(사업\s*공고|지원\s*사업\s*공고|사업\s*공모|공모\s*사업|사업\s*안내\s*공고|모집\s*공고)$"), 0),
+    (re.compile(r"^(공고|공고\s*사항|공고\s*게시판|공고/?공지|공지/?공고|알림\s*공고)$"), 1),
+    (re.compile(r"^(공지\s*사항|공지|새소식|알림\s*마당|알림\s*소식)$"), 2),
+    (re.compile(r"^(입찰\s*공고|입찰\s*정보|입찰)$"), 3),
+]
+
+
+def _same_site(a: str, b: str) -> bool:
+    a, b = a.removeprefix("www."), b.removeprefix("www.")
+    return a == b or a.endswith("." + b) or b.endswith("." + a)
+
+
+def discover_board(html, base_url, max_tries=4):
+    """홈페이지에서 공고 게시판 메뉴 링크를 찾아 목록을 읽어 본다. 성공하면 (주소, 공고성 행 목록)."""
+    cands = []
+    host = urllib.parse.urlsplit(base_url).hostname or ""
+    for m in re.finditer(r"(<a\b[^>]*>)([\s\S]{1,80}?)</a>", html, re.I):
+        text = re.sub(r"\s+", " ", strip_tags(m.group(2))).strip()
+        for pat, prio in BOARD_MENU:
+            if pat.match(text):
+                href = _resolve_href(m.group(1), base_url)
+                if not href or SKIP_FOLLOW.search(href):
+                    break
+                h2 = urllib.parse.urlsplit(href).hostname or ""
+                # 같은 기관 도메인만 (외부 포털 링크 제외)
+                if h2 and host and not _same_site(h2, host):
+                    break
+                cands.append((prio, href))
+                break
+    seen = []
+    for _, href in sorted(cands):
+        if href in seen:
+            continue
+        seen.append(href)
+        if len(seen) > max_tries:
+            break
+        try:
+            h, final = http_get(href, retries=0)
+        except Exception:  # noqa: BLE001
+            continue
+        rows = [r for r in parse_board(h, final) if NOTICE_WORDS.search(r[0])][:20]
+        if len(rows) >= 2:
+            return final, rows
+        time.sleep(0.3)
+    return None
 NOTICE_WORDS = re.compile(r"공고|모집|공모|입찰|선정|신청|접수|지원사업|수요조사|참여기업|설명회|제안요청")
 
 
@@ -454,14 +501,28 @@ def collect_boards(institutions, status):
                 rows = parse_board(html, final, limit=60 if is_home else BOARD_MAX_ROWS)
                 if is_home:
                     rows = [r for r in rows if NOTICE_WORDS.search(r[0])][:20]
-                    status.append({"source": name, "url": url, "ok": True, "count": len(rows),
-                                   **({} if rows else {"note": "첫 화면에 공고성 최신글 없음"})})
+                    discovered = ""
+                    if len(rows) < 3:
+                        # 첫 화면에 공고가 거의 없으면 '사업공고·공고·공지사항' 메뉴 링크를 찾아 들어가 본다
+                        found = discover_board(html, final)
+                        if found:
+                            discovered, brows = found
+                            rows = brows
+                            log(f"  [게시판 자동탐색] {name}: {discovered} → {len(rows)}건")
+                    st = {"source": name, "url": url, "ok": True, "count": len(rows)}
+                    if discovered:
+                        st["discovered_board"] = discovered
+                    elif not rows:
+                        st["note"] = "첫 화면에 공고성 최신글 없음"
+                    status.append(st)
                     log(f"  [홈페이지] {name}: {len(rows)}건")
                     for title, link, date, period in rows:
                         out.append(item("기관 홈페이지", title, link, org=inst["기관명"], field=inst.get("분야", ""),
                                         posted=date, period=period, key=f"{inst['기관명']}|{title}|{date}"))
                     time.sleep(0.5)
                     continue
+                if rows and inst.get("공고필터"):
+                    rows = [r for r in rows if NOTICE_WORDS.search(r[0])]
                 if not rows:
                     for nxt in find_followups(html, final):
                         try:
