@@ -1,8 +1,8 @@
 {
- "collected_at": "2026-11-18T11:56:04+09:00",
+ "collected_at": "2026-11-18T12:32:54+09:00",
  "mode": "live",
- "total": 984,
- "groups": 813,
+ "total": 1051,
+ "groups": 860,
  "sources": [
   {
    "source": "기업마당 (목록 페이지)",
@@ -111,8 +111,8 @@
    "source": "한국마사회 · 홈페이지 최신 공지",
    "url": "https://www.kra.co.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 3,
+   "discovered_board": "https://www.horsepia.com/hp/pa/pp/main.do?strToken=XXXXX"
   },
   {
    "source": "농협중앙회 · 사업·공모 공고",
@@ -217,7 +217,7 @@
    "source": "한국산업기술진흥원 · 사업·공모 공고",
    "url": "https://www.kiat.or.kr/front/board/boardContentsListPage.do?board_id=90",
    "ok": true,
-   "count": 15
+   "count": 13
   },
   {
    "source": "한국산업기술기획평가원 · 사업·공모 공고",
@@ -229,7 +229,7 @@
    "source": "한국에너지기술평가원 · 홈페이지 최신 공지",
    "url": "https://www.ketep.re.kr",
    "ok": true,
-   "count": 10
+   "count": 11
   },
   {
    "source": "과학기술사업화진흥원 · 홈페이지 최신 공지",
@@ -246,27 +246,8 @@
   {
    "source": "한국연구재단 · 사업·공모 공고",
    "url": "https://www.nrf.re.kr/biz/notice/list?menu_no=362",
-   "ok": false,
-   "count": 0,
-   "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
-   "diag": {
-    "bytes": 1843539,
-    "title": "사업공고 - 신규사업공모",
-    "tr": 0,
-    "li": 1256,
-    "dates": 4,
-    "long_links": 44,
-    "ajax_candidates": [
-     "/resources/libs/select2/css/select2.min.css"
-    ],
-    "followups": []
-   }
-  },
-  {
-   "source": "한국연구재단 · 홈페이지 최신 공지",
-   "url": "https://www.nrf.re.kr",
    "ok": true,
-   "count": 5
+   "count": 2
   },
   {
    "source": "국가과학기술연구회 · 홈페이지 최신 공지",
@@ -300,11 +281,10 @@
    "count": 16
   },
   {
-   "source": "한국보건산업진흥원 · 홈페이지 최신 공지",
-   "url": "https://www.khidi.or.kr",
+   "source": "한국보건산업진흥원 · 사업·공모 공고",
+   "url": "https://www.khidi.or.kr/board?menuId=MENU01108",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 14
   },
   {
    "source": "한국환경산업기술원 · 홈페이지 최신 공지",
@@ -329,8 +309,9 @@
    "source": "기술보증기금 · 홈페이지 최신 공지",
    "url": "https://www.kibo.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 8,
+   "rendered": true,
+   "discovered_board": "https://www.kibo.or.kr/main/board/boardType01.do"
   },
   {
    "source": "한국산학연협회 · 사업·공모 공고",
@@ -358,52 +339,44 @@
    "count": 10
   },
   {
-   "source": "창업진흥원 · 홈페이지 최신 공지",
-   "url": "https://www.kised.or.kr",
+   "source": "창업진흥원 · 사업·공모 공고",
+   "url": "https://www.kised.or.kr/misAnnouncement/index.es?mid=a10302000000",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 20
   },
   {
-   "source": "K-Startup 창업지원포털 · 홈페이지 최신 공지",
-   "url": "https://www.k-startup.go.kr",
-   "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
-  },
-  {
-   "source": "K-Startup 창업지원포털 · 입찰 공고",
+   "source": "K-Startup 창업지원포털 · 사업·공모 공고",
    "url": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
    "ok": true,
    "count": 15
   },
   {
-   "source": "중소벤처24 · 홈페이지 최신 공지",
-   "url": "https://portal.smes.go.kr",
+   "source": "중소벤처24 · 사업·공모 공고",
+   "url": "https://portal.smes.go.kr/home/req/pbanc",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 10
   },
   {
    "source": "중소벤처기업진흥공단 · 홈페이지 최신 공지",
    "url": "https://www.kosmes.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 3,
+   "rendered": true,
+   "discovered_board": "https://www.kosmes.or.kr/nsh/map/main.do"
   },
   {
    "source": "소상공인시장진흥공단 · 홈페이지 최신 공지",
    "url": "https://www.semas.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 5,
+   "rendered": true,
+   "discovered_board": "https://www.semas.or.kr/web/board/webBoardList.kmdc"
   },
   {
-   "source": "소상공인24 · 홈페이지 최신 공지",
-   "url": "https://www.sbiz24.kr",
+   "source": "소상공인24 · 사업·공모 공고",
+   "url": "https://www.sbiz24.kr/#/pbanc",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 10
   },
   {
    "source": "청년창업사관학교 · 홈페이지 최신 공지",
@@ -500,14 +473,14 @@
  "clusters": [
   {
    "name": "입찰·용역",
-   "count": 19,
-   "groups": 17,
+   "count": 20,
+   "groups": 18,
    "sources": {
-    "기관 홈페이지": 18,
+    "기관 홈페이지": 19,
     "기업마당": 1
    },
    "types": {
-    "입찰·용역": 18,
+    "입찰·용역": 19,
     "기타공지": 1
    },
    "keywords": [
@@ -516,21 +489,21 @@
     "입찰공고",
     "용역",
     "선정",
-    "자세히보기"
+    "시약"
    ]
   },
   {
    "name": "R&D·기술개발",
-   "count": 91,
-   "groups": 78,
+   "count": 95,
+   "groups": 81,
    "sources": {
-    "기관 홈페이지": 59,
+    "기관 홈페이지": 63,
     "기업마당": 32
    },
    "types": {
     "기타공지": 45,
-    "모집·공모": 33,
-    "설명회·행사": 7,
+    "모집·공모": 36,
+    "설명회·행사": 8,
     "입찰·용역": 3,
     "시행계획": 2,
     "결과발표": 1
@@ -546,19 +519,19 @@
   },
   {
    "name": "기술사업화·이전",
-   "count": 68,
-   "groups": 61,
+   "count": 75,
+   "groups": 67,
    "sources": {
-    "기관 홈페이지": 59,
+    "기관 홈페이지": 66,
     "기업마당": 9
    },
    "types": {
-    "모집·공모": 26,
-    "기타공지": 26,
-    "설명회·행사": 5,
+    "모집·공모": 30,
+    "기타공지": 27,
+    "설명회·행사": 6,
     "입찰·용역": 5,
     "시행계획": 4,
-    "결과발표": 2
+    "결과발표": 3
    },
    "keywords": [
     "마감",
@@ -571,26 +544,26 @@
   },
   {
    "name": "창업·벤처",
-   "count": 69,
-   "groups": 62,
+   "count": 93,
+   "groups": 77,
    "sources": {
-    "기업마당": 37,
-    "기관 홈페이지": 32
+    "기관 홈페이지": 56,
+    "기업마당": 37
    },
    "types": {
-    "모집·공모": 59,
+    "모집·공모": 79,
+    "기타공지": 7,
+    "시행계획": 3,
     "설명회·행사": 3,
-    "기타공지": 3,
-    "시행계획": 2,
-    "입찰·용역": 2
+    "입찰·용역": 1
    },
    "keywords": [
     "스타트업",
-    "청년",
-    "창업",
-    "입주기업",
     "주관기관",
-    "창업도시"
+    "모집공고",
+    "창업",
+    "청년",
+    "입주기업"
    ]
   },
   {
@@ -619,14 +592,14 @@
   },
   {
    "name": "농림·식품·해양",
-   "count": 187,
-   "groups": 139,
+   "count": 189,
+   "groups": 141,
    "sources": {
-    "기관 홈페이지": 114,
+    "기관 홈페이지": 116,
     "기업마당": 73
    },
    "types": {
-    "모집·공모": 94,
+    "모집·공모": 96,
     "기타공지": 42,
     "입찰·용역": 29,
     "결과발표": 12,
@@ -644,70 +617,71 @@
   },
   {
    "name": "바이오·헬스",
-   "count": 13,
-   "groups": 12,
+   "count": 20,
+   "groups": 19,
    "sources": {
     "기업마당": 11,
-    "기관 홈페이지": 2
+    "기관 홈페이지": 9
    },
    "types": {
-    "모집·공모": 12,
-    "기타공지": 1
+    "모집·공모": 18,
+    "기타공지": 1,
+    "설명회·행사": 1
    },
    "keywords": [
     "바이오",
+    "모집공고",
     "육성",
     "국내전시회",
     "참가지원",
-    "국제의료기기",
-    "병원설비전시회"
+    "국제의료기기"
    ]
   },
   {
    "name": "디지털·AI·데이터",
-   "count": 65,
-   "groups": 57,
+   "count": 68,
+   "groups": 60,
    "sources": {
     "기업마당": 37,
-    "기관 홈페이지": 28
+    "기관 홈페이지": 31
    },
    "types": {
-    "모집·공모": 42,
-    "기타공지": 9,
-    "입찰·용역": 6,
+    "모집·공모": 45,
+    "기타공지": 10,
+    "입찰·용역": 5,
     "설명회·행사": 4,
     "결과발표": 2,
     "시행계획": 2
    },
    "keywords": [
     "AI",
-    "자세히보기",
     "AI·ICT",
     "기반",
+    "소상공인",
     "업무",
-    "IITP"
+    "자세히보기"
    ]
   },
   {
    "name": "에너지·환경·탄소",
-   "count": 31,
+   "count": 33,
    "groups": 28,
    "sources": {
     "기업마당": 22,
-    "기관 홈페이지": 9
+    "기관 홈페이지": 11
    },
    "types": {
-    "모집·공모": 22,
+    "모집·공모": 24,
     "기타공지": 8,
     "입찰·용역": 1
    },
    "keywords": [
+    "충북",
+    "특구",
+    "임시허",
+    "책임보험료",
     "연장",
-    "친환경인증선박",
-    "보급지원사업",
-    "보급사업",
-    "친환경",
-    "재생에너지"
+    "친환경인증선박"
    ]
   },
   {
@@ -736,14 +710,14 @@
   },
   {
    "name": "수출·해외진출",
-   "count": 55,
-   "groups": 55,
+   "count": 57,
+   "groups": 56,
    "sources": {
     "기업마당": 46,
-    "기관 홈페이지": 9
+    "기관 홈페이지": 11
    },
    "types": {
-    "모집·공모": 44,
+    "모집·공모": 46,
     "설명회·행사": 4,
     "결과발표": 3,
     "기타공지": 3,
@@ -760,46 +734,47 @@
   },
   {
    "name": "판로·마케팅",
-   "count": 28,
-   "groups": 27,
+   "count": 32,
+   "groups": 29,
    "sources": {
-    "기업마당": 28
+    "기업마당": 28,
+    "기관 홈페이지": 4
    },
    "types": {
-    "모집·공모": 21,
-    "시행계획": 3,
+    "모집·공모": 22,
+    "시행계획": 6,
     "기타공지": 2,
     "입찰·용역": 1,
     "설명회·행사": 1
    },
    "keywords": [
     "온라인",
-    "중소기업",
-    "서울패션위크",
+    "플랫폼",
+    "해외",
     "소상공인",
-    "춘계",
-    "트레이드쇼"
+    "판로지원",
+    "중소기업"
    ]
   },
   {
    "name": "금융·투자",
-   "count": 41,
-   "groups": 33,
+   "count": 47,
+   "groups": 39,
    "sources": {
     "기업마당": 33,
-    "기관 홈페이지": 8
+    "기관 홈페이지": 14
    },
    "types": {
-    "기타공지": 24,
-    "모집·공모": 13,
+    "기타공지": 25,
+    "모집·공모": 17,
+    "설명회·행사": 2,
     "결과발표": 2,
-    "시행계획": 1,
-    "설명회·행사": 1
+    "시행계획": 1
    },
    "keywords": [
     "중소기업",
-    "계획",
     "지원계획",
+    "계획",
     "출자사업",
     "소상공인",
     "특례보증"
@@ -807,15 +782,15 @@
   },
   {
    "name": "인력·교육",
-   "count": 62,
-   "groups": 54,
+   "count": 64,
+   "groups": 56,
    "sources": {
     "기업마당": 54,
-    "기관 홈페이지": 8
+    "기관 홈페이지": 10
    },
    "types": {
     "모집·공모": 51,
-    "기타공지": 10,
+    "기타공지": 12,
     "결과발표": 1
    },
    "keywords": [
@@ -853,23 +828,23 @@
   },
   {
    "name": "지역·소상공인",
-   "count": 55,
-   "groups": 45,
+   "count": 58,
+   "groups": 47,
    "sources": {
     "기업마당": 54,
-    "기관 홈페이지": 1
+    "기관 홈페이지": 4
    },
    "types": {
-    "모집·공모": 46,
-    "기타공지": 9
+    "모집·공모": 47,
+    "기타공지": 11
    },
    "keywords": [
     "소상공인",
     "카드수수료",
+    "W형",
+    "가맹점",
     "하반기",
-    "착한가격업소",
-    "참여자",
-    "추가모집"
+    "착한가격업소"
    ]
   },
   {
