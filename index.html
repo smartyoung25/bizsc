@@ -256,8 +256,11 @@
     position: sticky; top: 0; z-index: 20; display: flex; gap: 6px; padding: 10px 20px;
     max-width: 1180px; margin: 0 auto; background: var(--bg);
     border-bottom: 1px solid var(--border);
+    overflow-x: auto; scrollbar-width: none;
   }
+  .page-tabs::-webkit-scrollbar { display: none; }
   .page-tab {
+    white-space: nowrap; flex: 0 0 auto;
     border: 1px solid transparent; background: transparent; color: var(--muted); font-family: inherit;
     font-size: 13.5px; font-weight: 700; padding: 9px 16px; border-radius: 10px 10px 0 0; cursor: pointer;
     transition: background 0.12s ease, color 0.12s ease; position: relative; top: 1px;
@@ -297,6 +300,61 @@
   .pub-card .pub-period { font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
   .pub-card .pub-link { margin-top: auto; align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--accent-ink); text-decoration: none; }
   .pub-card .pub-link:hover { text-decoration: underline; }
+  /* ---------- 공고·공모 클러스터 페이지 ---------- */
+  .cl-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .cl-tile { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; font-family: inherit; color: var(--ink); display: flex; flex-direction: column; gap: 6px; transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease; }
+  .cl-tile:hover { border-color: var(--accent-line); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .cl-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cl-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .cl-tile .cl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .cl-tile .cl-name { font-size: 13.5px; font-weight: 800; }
+  .cl-tile .cl-n { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--accent-ink); }
+  .cl-bar { height: 5px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
+  .cl-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .cl-kw { font-size: 11px; color: var(--muted); line-height: 1.5; min-height: 2.9em; overflow: hidden; }
+  .cl-sub { font-size: 10.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .cl-filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .cl-filters .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .cl-filters input[type=search] { flex: 1 1 240px; padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--ink); font-size: 13.5px; outline: none; font-family: inherit; }
+  .cl-filters input[type=search]:focus { border-color: var(--accent); background: var(--surface); }
+  .cl-filters select { padding: 8px 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: inherit; font-size: 12.5px; }
+  .cl-filters label.tg { font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  .cl-section { margin-top: 18px; }
+  .cl-section > h3 { font-size: 14.5px; margin: 0 0 8px; display: flex; gap: 8px; align-items: baseline; }
+  .cl-section > h3 .n { font-size: 12px; color: var(--faint); font-weight: 600; }
+  .cl-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden; }
+  .cl-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 11px 14px; border-top: 1px solid var(--border-soft); background: var(--surface); }
+  .cl-item:first-child { border-top: none; }
+  .cl-item .t { font-size: 13.5px; font-weight: 600; line-height: 1.45; min-width: 0; overflow-wrap: anywhere; }
+  .cl-item .t a { color: var(--ink); text-decoration: none; }
+  .cl-item .t a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .cl-item .m { font-size: 11.5px; color: var(--muted); grid-column: 1; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .cl-item .r { grid-row: 1 / span 2; grid-column: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cl-badges { display: inline-flex; gap: 5px; flex-wrap: wrap; margin-right: 6px; vertical-align: 1px; }
+  .tb { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .tb-모집·공모 { background: var(--ok-soft); color: var(--ok); }
+  .tb-입찰·용역 { background: var(--info-soft); color: var(--info); }
+  .tb-시행계획 { background: var(--prespec-soft); color: var(--prespec); }
+  .tb-설명회·행사 { background: var(--warn-soft); color: var(--warn); }
+  .tb-결과발표 { background: var(--surface-alt); color: var(--muted); border: 1px solid var(--border); }
+  .tb-기타공지 { background: var(--surface-alt); color: var(--faint); }
+  .st { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+  .st-open { background: var(--ok-soft); color: var(--ok); }
+  .st-soon { background: var(--danger-soft); color: var(--danger); }
+  .st-always { background: var(--info-soft); color: var(--info); }
+  .st-closed { background: var(--surface-alt); color: var(--faint); }
+  .grp-btn { background: var(--pub-soft); color: var(--pub); border: none; border-radius: 999px; font-size: 10.5px; font-weight: 800; padding: 2px 8px; cursor: pointer; font-family: inherit; }
+  .grp-list { grid-column: 1 / -1; margin: 4px 0 0; padding: 8px 12px; background: var(--surface-alt); border-radius: 9px; font-size: 12px; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .grp-list a { color: var(--accent-ink); }
+  .cl-more { display: block; width: 100%; padding: 9px; border: none; border-top: 1px solid var(--border-soft); background: var(--surface-alt); color: var(--accent-ink); font-weight: 700; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .src-status { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .src-status span { font-size: 11px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .src-status span.ok { border-color: var(--ok); color: var(--ok); }
+  .src-status span.fail { border-color: var(--danger); color: var(--danger); }
+  @media (max-width: 640px) {
+    .cl-item { grid-template-columns: 1fr; }
+    .cl-item .r { grid-row: auto; grid-column: 1; flex-direction: row; align-items: center; }
+  }
 </style>
 </head>
 <body>
@@ -324,6 +382,7 @@
     <button type="button" class="page-tab" data-page="stats" role="tab" aria-selected="false">통계</button>
     <button type="button" class="page-tab" data-page="search" role="tab" aria-selected="false">검색</button>
     <button type="button" class="page-tab" data-page="pub" role="tab" aria-selected="false">공공기관 공모·입찰</button>
+    <button type="button" class="page-tab" data-page="cluster" role="tab" aria-selected="false">공고·공모 클러스터</button>
   </nav>
 
   <main>
@@ -493,6 +552,43 @@
       </p>
     </section>
 
+
+    <section class="page" id="page-cluster" hidden>
+      <div class="page-heading">
+        <h2>기업지원·공공기관 공고 클러스터</h2>
+        <p class="page-desc">기업마당·K-Startup·공공기관 홈페이지 게시판의 공고·공모를 분야별로 자동 분류하고, 같은 사업의 중복·재공고·지역별 공고를 묶었습니다 (<strong id="cl-updated">-</strong>).</p>
+      </div>
+      <section class="kpis" id="cl-kpis" aria-label="공고 클러스터 요약"></section>
+      <section class="panel">
+        <div class="page-heading" style="margin:0 0 10px"><h2 style="font-size:15px">분야 클러스터 지도</h2><p class="page-desc">타일을 누르면 해당 분야만 봅니다 (여러 개 선택 가능)</p></div>
+        <div class="cl-map" id="cl-map"></div>
+      </section>
+      <section class="panel">
+        <div class="cl-filters">
+          <div class="row">
+            <input type="search" id="cl-q" placeholder="공고명, 기관명, 키워드로 검색..." aria-label="공고 검색">
+            <select id="cl-region" aria-label="지역"></select>
+            <select id="cl-sort" aria-label="정렬">
+              <option value="posted">최신 게시순</option>
+              <option value="deadline">마감 임박순</option>
+              <option value="title">공고명순</option>
+            </select>
+            <button type="button" id="cl-export" class="btn btn-primary btn-sm">엑셀 내보내기</button>
+          </div>
+          <div class="row"><span class="toolbar-label">상태</span><div class="chip-group" id="cl-status-chips"></div></div>
+          <div class="row"><span class="toolbar-label">유형</span><div class="chip-group" id="cl-type-chips"></div></div>
+          <div class="row"><span class="toolbar-label">출처</span><div class="chip-group" id="cl-source-chips"></div>
+            <label class="tg" style="margin-left:auto"><input type="checkbox" id="cl-group-toggle" checked> 유사공고 묶어 보기</label>
+          </div>
+        </div>
+        <div id="cl-results"></div>
+        <div class="empty" id="cl-empty" hidden>조건에 맞는 공고가 없습니다.</div>
+      </section>
+      <p class="footnote">
+        분류는 공고명·지원분야·기관명의 키워드 점수로 자동 배정하며, 유사공고 묶음은 연도·차수·지역 표기 등을 뺀 제목의 글자 유사도로 계산합니다(<code>scripts/notice_cluster.py</code>). 매일 GitHub Actions(<code>collect_notices.yml</code>)가 수집·재분류합니다. 수집 대상 기관 게시판은 <code>institutions.json</code>의 <code>공고게시판URL</code>에서 추가할 수 있습니다. 지원 전 반드시 원문 공고에서 접수기간과 마감 여부를 다시 확인하세요.
+        <span class="src-status" id="cl-src-status"></span>
+      </p>
+    </section>
     <p class="footnote">
       나라장터(g2b.go.kr) Open API로 매주 자동 수집된 입찰·사전규격 공고와, 기업마당·K-Startup·IPET 등에서 웹 검색으로 수집한 주요 공공기관 공모·지원사업(<strong id="pub-updated"></strong> 기준 스냅샷)을 하나의 표로 통합했습니다. 동일 나라장터 공고가 여러 주에 걸쳐 반복 수집된 경우 공고번호·구분·게시일시 기준으로 중복을 제거해 표시합니다(수집 원본 <strong id="raw-count"></strong>건 → 고유 <strong id="uniq-count"></strong>건). 모든 행은 공고명 클릭 시 실제 원문 상세페이지로 바로 이동합니다 — 나라장터는 API 응답 링크 또는 공고번호 기반 재구성 링크, 공모·지원사업은 검색으로 확인한 원문 링크입니다. 드물게 <span class="search-badge" style="display:inline-block;vertical-align:middle;">검색</span> 표시가 남은 나라장터 건은 공고번호 형식을 인식하지 못한 예외로, 클릭 시 공고번호가 클립보드에 복사되고 나라장터 홈이 새 탭으로 열립니다. 공모·지원사업 항목은 정기 자동수집이 아니므로 지원 전 원문에서 마감 여부를 다시 확인하세요 — 이 항목도 매주 자동 수집하려면 창업진흥원(K-Startup) 등 각 기관 Open API의 서비스키가 추가로 필요합니다. 통계 페이지의 카드를 클릭하면 검색 페이지로 이동해 해당 조건이 자동 적용됩니다.
     </p>
@@ -1202,5 +1298,6 @@
   init();
 })();
 </script>
+<script src="assets/notices.js"></script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+name: 기업지원·공공기관 공고 일일 수집
+
+on:
+  schedule:
+    # 매일 00:40 KST (UTC 기준 전날 15:40) — 나라장터 수집(00:10)과 겹치지 않게
+    - cron: "40 15 * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/collect_notices.yml"
+      - "scripts/collect_notices.py"
+      - "scripts/notice_cluster.py"
+      - "institutions.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect-notices
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 공고 수집 및 클러스터링
+        env:
+          # 선택: 기업마당 공식 API 인증키 (없으면 목록 페이지를 파싱)
+          BIZINFO_API_KEY: ${{ secrets.BIZINFO_API_KEY }}
+          # 선택: data.go.kr 'K-Startup 사업공고' 서비스키 (없으면 G2B_SERVICE_KEY로 시도)
+          KSTARTUP_SERVICE_KEY: ${{ secrets.KSTARTUP_SERVICE_KEY }}
+          G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python -u scripts/collect_notices.py
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/notices.json data/notices_meta.json
+          if git diff --cached --quiet; then
+            echo "변경된 데이터가 없습니다."
+          else
+            git commit -m "chore: 기업지원·공공기관 공고 자동 갱신 ($(date -u +%Y-%m-%d))"
+            git pull --rebase origin main
+            git push
+          fi
