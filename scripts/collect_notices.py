@@ -429,12 +429,15 @@ def board_diag(html):
 
 HOMEPAGE_LABEL = "홈페이지 최신 공지"
 # 메뉴 링크 문구 → 우선순위 (낮을수록 먼저 시도)
+_MORE = r"(\s*(더보기|바로가기|목록|more|MORE|\+|>|›))?"
 BOARD_MENU = [
-    (re.compile(r"^(사업\s*공고|지원\s*사업\s*공고|사업\s*공모|공모\s*사업|사업\s*안내\s*공고|모집\s*공고)$"), 0),
-    (re.compile(r"^(공고|공고\s*사항|공고\s*게시판|공고/?공지|공지/?공고|알림\s*공고)$"), 1),
-    (re.compile(r"^(공지\s*사항|공지|새소식|알림\s*마당|알림\s*소식)$"), 2),
-    (re.compile(r"^(입찰\s*공고|입찰\s*정보|입찰)$"), 3),
+    (re.compile(r"^(사업\s*공고|지원\s*사업\s*공고|사업\s*공모|공모\s*사업|사업\s*안내\s*공고|모집\s*공고|공고\s*/\s*모집|사업\s*공고\s*/\s*모집)" + _MORE + "$"), 0),
+    (re.compile(r"^(공고|공고\s*사항|공고\s*게시판|공고\s*/?\s*공지|공지\s*/?\s*공고|알림\s*공고|공고\s*안내)" + _MORE + "$"), 1),
+    (re.compile(r"^(지원\s*사업|사업\s*신청|사업\s*안내|사업\s*소개)" + _MORE + "$"), 2),
+    (re.compile(r"^(공지\s*사항|공지|새소식|알림\s*마당|알림\s*소식|소식\s*알림|기관\s*소식)" + _MORE + "$"), 3),
+    (re.compile(r"^(입찰\s*공고|입찰\s*정보|입찰)" + _MORE + "$"), 4),
 ]
+MENU_HINT = re.compile(r"공고|공지|모집|공모|지원사업|사업신청|입찰|알림")
 
 
 def _same_site(a: str, b: str) -> bool:
@@ -526,7 +529,7 @@ class Renderer:
         finally:
             ctx.close()
 
-    def discover(self, url, max_tries=4):
+    def discover(self, url, max_tries=6):
         """렌더링된 홈페이지에서 공고 메뉴를 찾아 (링크 이동 또는 클릭으로) 들어가 목록을 읽는다."""
         if not self._start():
             return None
@@ -571,6 +574,10 @@ class Renderer:
                 rows = [r for r in parse_board(page.content(), page.url) if NOTICE_WORDS.search(r[0])][:20]
                 if len(rows) >= 2:
                     return page.url, rows
+            # 못 찾았으면 사람이 고를 수 있게 공고 관련 메뉴 후보를 로그로 남긴다
+            hints = [f"{ln['text'][:20]}|{ln['href'][:120]}" for ln in links
+                     if ln["text"] and len(ln["text"]) <= 20 and MENU_HINT.search(ln["text"])][:25]
+            log(f"  [메뉴 진단] {url} (최종 {home_url}, 링크 {len(links)}개, 시도 {len(tried)}개): " + " ; ".join(hints))
             return None
         except Exception:  # noqa: BLE001
             return None
@@ -797,6 +804,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", action="store_true", help="저장소 내 기업마당 엑셀·pub_items.json으로 시드")
     ap.add_argument("--offline", action="store_true", help="네트워크 수집 없이 재클러스터링만")
+    ap.add_argument("--only", default=os.environ.get("NOTICE_ONLY", ""),
+                    help="쉼표로 구분한 기관명만 시험 수집(저장하지 않음). 게시판 탐색 점검용")
     args = ap.parse_args()
 
     old = []
@@ -806,6 +815,22 @@ def main():
 
     insts = json.load(open(INSTITUTIONS_PATH, encoding="utf-8"))["기관목록"]
     org_fields = {i["기관명"]: i.get("분야", "") for i in insts}
+    if args.only.strip():
+        names = [n.strip() for n in args.only.split(",") if n.strip()]
+        sel = [i for i in insts if any(n in i["기관명"] for n in names)]
+        log(f"[시험 수집] {len(sel)}개 기관: {', '.join(i['기관명'] for i in sel)} (결과는 저장하지 않음)")
+        st = []
+        try:
+            rows = collect_boards(sel, st)
+        finally:
+            RENDERER.close()
+        for x in st:
+            log(f"  결과: {x['source']} → {'성공' if x['ok'] else '실패'} {x['count']}건"
+                + (f" | 찾은 게시판 {x['discovered_board']}" if x.get("discovered_board") else "")
+                + (f" | {x.get('error', '')}" if not x["ok"] else ""))
+        for r in rows[:60]:
+            log(f"    - [{r['org']}] {r['title'][:60]} ({r['posted']})")
+        return
 
     status, new = [], []
     stamp = now_kst().strftime("%Y-%m-%d")
