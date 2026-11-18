@@ -1,5 +1,5 @@
 {
- "collected_at": "2026-11-18T11:36:11+09:00",
+ "collected_at": "2026-11-18T11:56:04+09:00",
  "mode": "live",
  "total": 984,
  "groups": 813,
@@ -250,7 +250,7 @@
    "count": 0,
    "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
    "diag": {
-    "bytes": 1843536,
+    "bytes": 1843539,
     "title": "사업공고 - 신규사업공모",
     "tr": 0,
     "li": 1256,
@@ -317,25 +317,6 @@
    "url": "https://www.kimst.re.kr",
    "ok": true,
    "count": 7
-  },
-  {
-   "source": "중소기업기술정보진흥원 · 사업·공모 공고",
-   "url": "https://www.tipa.or.kr/s040101",
-   "ok": false,
-   "count": 0,
-   "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
-   "diag": {
-    "bytes": 21374,
-    "title": "Main – 중소기업기술정보진흥원",
-    "tr": 0,
-    "li": 46,
-    "dates": 0,
-    "long_links": 23,
-    "ajax_candidates": [
-     "https://www.innogov.go.kr/ucms/main/main.do"
-    ],
-    "followups": []
-   }
   },
   {
    "source": "중소기업기술정보진흥원 · 홈페이지 최신 공지",
