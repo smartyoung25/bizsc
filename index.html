@@ -315,6 +315,33 @@
   .cl-depts .chip { font-size: 12.5px; padding: 6px 12px; }
   .cl-depts.has-sel .chip[aria-pressed="false"] { opacity: 0.5; }
   .cl-depts .chip[aria-pressed="true"]::before { content: "✓"; font-weight: 800; }
+  .inst-summary { margin-left: auto; font-size: 12px; color: var(--muted); font-weight: 600; }
+  .inst-field { margin-top: 18px; }
+  .inst-field:first-child { margin-top: 4px; }
+  .inst-field-h { font-size: 14.5px; margin: 0 0 10px; padding-left: 10px; border-left: 3px solid var(--accent); }
+  .inst-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+  .inst-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .inst-card header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .inst-card h3 { margin: 0; font-size: 14px; font-weight: 800; }
+  .inst-card .abbr { font-size: 11px; color: var(--faint); font-weight: 600; }
+  .inst-st { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .inst-st.ok { background: var(--ok-soft); color: var(--ok); }
+  .inst-st.zero { background: var(--surface-alt); color: var(--faint); }
+  .inst-st.fail { background: var(--danger-soft); color: var(--danger); }
+  .inst-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .inst-rows li { padding: 7px 0; border-top: 1px solid var(--border-soft); display: flex; flex-direction: column; gap: 3px; }
+  .inst-rows li:first-child { border-top: none; padding-top: 2px; }
+  .inst-rows a { color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+  .inst-rows a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .ir-meta { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .ir-src { color: var(--muted); }
+  .inst-none { margin: 0; font-size: 12.5px; color: var(--faint); }
+  .inst-card footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; }
+  .inst-more { border: none; background: var(--accent-soft); color: var(--accent-ink); font-weight: 700; font-size: 11.5px; border-radius: 999px; padding: 4px 11px; cursor: pointer; font-family: inherit; }
+  .inst-links { display: flex; gap: 10px; font-size: 11.5px; }
+  .inst-links a { color: var(--muted); text-decoration: none; font-weight: 600; }
+  .inst-links a:hover { color: var(--accent-ink); }
+  @media (max-width: 640px) { .inst-grid { grid-template-columns: 1fr; } .inst-summary { margin-left: 0; width: 100%; } }
   .cl-map-hint { font-size: 12px; color: var(--accent-ink); font-weight: 700; }
   .cl-tile .cl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .cl-tile .cl-name { font-size: 13.5px; font-weight: 800; }
@@ -388,7 +415,7 @@
         <div class="meta-item"><span class="lbl">나라장터 수집기간</span><strong id="meta-range">-</strong></div>
         <div class="meta-item"><span class="lbl">최근 게시</span><strong id="meta-latest">-</strong></div>
         <div class="meta-item"><span class="lbl">나라장터 고유공고</span><strong id="meta-uniq">-</strong></div>
-        <div class="meta-item"><span class="lbl">공모·지원사업</span><strong id="meta-pub">-</strong></div>
+        <div class="meta-item"><span class="lbl">기관·공모 공고</span><strong id="meta-pub">-</strong></div>
       </div>
     </div>
   </header>
@@ -397,7 +424,7 @@
     <button type="button" class="page-tab" data-page="overview" role="tab" aria-selected="true">통합조회</button>
     <button type="button" class="page-tab" data-page="stats" role="tab" aria-selected="false">통계</button>
     <button type="button" class="page-tab" data-page="search" role="tab" aria-selected="false">검색</button>
-    <button type="button" class="page-tab" data-page="pub" role="tab" aria-selected="false">공공기관 공모·입찰</button>
+    <button type="button" class="page-tab" data-page="pub" role="tab" aria-selected="false">공공기관별 공고</button>
     <button type="button" class="page-tab" data-page="cluster" role="tab" aria-selected="false">공고·공모 클러스터</button>
   </nav>
 
@@ -551,6 +578,25 @@
 
     <section class="page" id="page-pub" hidden>
       <div class="page-heading">
+        <h2>공공기관별 공고</h2>
+        <p class="page-desc">농촌진흥청 등 주요 공공기관의 공모·지원·입찰 공고를 기관별로 모았습니다. 매일 자동 수집 (<strong id="inst-updated">-</strong>).</p>
+      </div>
+      <section class="panel" id="inst-root">
+        <div class="cl-filters">
+          <div class="row">
+            <input type="search" id="inst-q" placeholder="기관명, 공고명으로 검색..." aria-label="기관별 공고 검색">
+            <label class="tg"><input type="checkbox" id="inst-only-with" checked> 공고 있는 기관만</label>
+            <label class="tg"><input type="checkbox" id="inst-only-open"> 접수중·상시만</label>
+          </div>
+          <div class="row"><span class="toolbar-label">분야</span><div class="chip-group" id="inst-field-chips"></div><span class="inst-summary" id="inst-summary"></span></div>
+        </div>
+        <div id="inst-list"></div>
+      </section>
+      <p class="footnote">
+        각 기관 홈페이지 게시판(또는 첫 화면 최신글)과 기업마당에서 수행기관이 해당 기관인 공고를 모았습니다. 수집 대상과 게시판 주소는 <code>institutions.json</code>에서 관리합니다. 지원 전 반드시 원문 공고에서 접수기간과 마감 여부를 다시 확인하세요.
+      </p>
+      <div hidden>
+      <div class="page-heading">
         <h2>주요 공공기관 공모·입찰사업</h2>
         <p class="page-desc">기업마당·K-Startup·IPET 등에서 웹 검색으로 수집한 주요 공공기관 공모·지원·입찰 프로그램만 모아 카드로 보여줍니다 (<strong id="pub-updated-2"></strong> 기준 스냅샷, 총 <strong id="pub-count-2"></strong>건).</p>
       </div>
@@ -566,6 +612,7 @@
       <p class="footnote">
         이 페이지는 정기 자동수집이 아닌 수동 스냅샷입니다. 지원 전 반드시 원문 공고에서 접수기간과 마감 여부를 다시 확인하세요 — 매주 자동 수집하려면 창업진흥원(K-Startup) 등 각 기관 Open API의 서비스키가 추가로 필요합니다. 사업명을 클릭하면 원문 공고 페이지가 새 탭으로 열립니다.
       </p>
+      </div>
     </section>
 
 
@@ -1234,7 +1281,7 @@
     document.getElementById("meta-range").textContent = `${MIN_DATE} ~ ${MAX_DATE}`;
     document.getElementById("meta-latest").textContent = MAX_DATE;
     document.getElementById("meta-uniq").textContent = `${RECORDS.length.toLocaleString()}건`;
-    document.getElementById("meta-pub").textContent = `${PUB_ITEMS.length.toLocaleString()}건`;
+    // meta-pub(기관·공모 공고 수)은 assets/notices.js가 data/notices.json 기준으로 채운다
     document.getElementById("raw-count").textContent = String(RAW_COUNT);
     document.getElementById("uniq-count").textContent = String(RECORDS.length);
     document.getElementById("pub-updated").textContent = PUB_SNAPSHOT_DATE;
@@ -1319,5 +1366,6 @@
 })();
 </script>
 <script src="assets/notices.js"></script>
+<script src="assets/institutions.js"></script>
 </body>
 </html>

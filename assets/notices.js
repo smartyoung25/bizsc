@@ -14,6 +14,8 @@
     console.error("공고 클러스터 데이터 로드 실패:", e);
   }
 
+  { const m = document.getElementById("meta-pub"); if (m && ITEMS.length) m.textContent = `${ITEMS.length.toLocaleString()}건`; }
+
   const CLUSTER_ORDER = (META.clusters || []).map((c) => c.name);
   const TYPE_ORDER = ["모집·공모", "입찰·용역", "시행계획", "설명회·행사", "결과발표", "기타공지"];
   const STATUS = [
