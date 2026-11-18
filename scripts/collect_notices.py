@@ -76,14 +76,35 @@ def _ssl_ctx(legacy=False):
     return ctx
 
 
+def _opener(legacy):
+    # 쿠키를 받아야 목록을 보여주는 사이트(예: 국토교통부 — 쿠키 없이 요청하면 307 무한 리다이렉트)를 위해
+    # 요청마다 쿠키 저장소를 가진 opener를 쓴다.
+    import http.cookiejar
+    return urllib.request.build_opener(
+        urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
+        urllib.request.HTTPSHandler(context=_ssl_ctx(legacy)),
+    )
+
+
 def http_get(url, timeout=25, retries=2):
+    try:
+        return _http_get(url, timeout, retries)
+    except RuntimeError as e:
+        # 'www.' 없는 도메인이 DNS에서 안 잡히는 경우 www. 를 붙여 한 번 더 시도
+        host = urllib.parse.urlsplit(url).hostname or ""
+        if "Name or service not known" in str(e) and host and not host.startswith("www."):
+            return _http_get(url.replace(host, "www." + host, 1), timeout, 0)
+        raise
+
+
+def _http_get(url, timeout=25, retries=2):
     last = None
     for attempt in range(retries + 1):
         for legacy in (False, True):
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ko-KR,ko;q=0.9",
                                                        "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8"})
-                with urllib.request.urlopen(req, timeout=timeout, context=_ssl_ctx(legacy)) as r:
+                with _opener(legacy).open(req, timeout=timeout) as r:
                     raw = r.read()
                     ctype = r.headers.get("Content-Type", "")
                     return decode_body(raw, ctype), r.geturl()
@@ -376,6 +397,9 @@ def parse_board(html, base_url, limit=BOARD_MAX_ROWS):
     return []
 
 
+SKIP_FOLLOW = re.compile(r"login|logout|sso|search|member|join|sitemap|\.(css|js|png|jpe?g|gif)(\?|$)", re.I)
+
+
 def find_followups(html, base_url):
     """목록이 iframe이나 자바스크립트 이동 뒤에 있는 경우 따라갈 주소 후보."""
     cands = []
@@ -384,7 +408,7 @@ def find_followups(html, base_url):
                 r'location(?:\.href)?\s*=\s*["\']([^"\']+)["\']'):
         for u in re.findall(pat, html, re.I):
             u = htmllib.unescape(u).strip()
-            if u and not u.lower().startswith(("javascript", "about:", "#")):
+            if u and not u.lower().startswith(("javascript", "about:", "#")) and not SKIP_FOLLOW.search(u):
                 cands.append(urllib.parse.urljoin(base_url, u))
     return list(dict.fromkeys(cands))[:3]
 
@@ -454,6 +478,10 @@ def collect_boards(institutions, status):
                     status.append({"source": name, "url": url, "ok": False, "count": 0,
                                    "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
                                    "diag": diag})
+                    # 게시판을 못 읽으면 홈페이지 첫 화면 최신글로 대신 수집 (예: 한국연구재단 — 목록을 JS로 불러옴)
+                    if label == "사업·공모 공고" and inst.get("홈페이지"):
+                        home = inst["홈페이지"]
+                        targets.append((home if home.startswith("http") else "https://" + home, "", HOMEPAGE_LABEL))
                     time.sleep(0.5)
                     continue
                 for title, link, date, period in rows:
