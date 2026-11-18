@@ -1,8 +1,8 @@
 {
- "collected_at": "2026-11-18T10:46:31+09:00",
+ "collected_at": "2026-11-18T11:36:11+09:00",
  "mode": "live",
- "total": 831,
- "groups": 699,
+ "total": 984,
+ "groups": 813,
  "sources": [
   {
    "source": "기업마당 (목록 페이지)",
@@ -19,8 +19,7 @@
    "source": "농림축산식품부 · 홈페이지 최신 공지",
    "url": "https://www.mafra.go.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 9
   },
   {
    "source": "농촌진흥청 · 사업·공모 공고",
@@ -38,22 +37,20 @@
    "source": "산림청 · 홈페이지 최신 공지",
    "url": "https://www.forest.go.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 10,
+   "discovered_board": "https://www.forest.go.kr/kfsweb/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_1032&mn=NKFS_04_01_02"
   },
   {
-   "source": "해양수산부 · 홈페이지 최신 공지",
-   "url": "https://www.mof.go.kr",
+   "source": "해양수산부 · 사업·공모 공고",
+   "url": "https://www.mof.go.kr/doc/ko/selectDocList.do?menuSeq=375&bbsSeq=9",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 6
   },
   {
    "source": "국립수산과학원 · 홈페이지 최신 공지",
    "url": "https://www.nifs.go.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 4
   },
   {
    "source": "한국농어촌공사 · 홈페이지 최신 공지",
@@ -80,11 +77,10 @@
    "count": 10
   },
   {
-   "source": "농림수산식품교육문화정보원 · 홈페이지 최신 공지",
-   "url": "https://www.epis.or.kr",
+   "source": "농림수산식품교육문화정보원 · 사업·공모 공고",
+   "url": "https://www.epis.or.kr/bbs/list.do?key=2604210075",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 4
   },
   {
    "source": "농업정책보험금융원 · 홈페이지 최신 공지",
@@ -102,15 +98,14 @@
    "source": "한국임업진흥원 · 홈페이지 최신 공지",
    "url": "https://www.kofpi.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 12
   },
   {
    "source": "산림조합중앙회 · 홈페이지 최신 공지",
    "url": "https://www.nfcf.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 8,
+   "rendered": true
   },
   {
    "source": "한국마사회 · 홈페이지 최신 공지",
@@ -120,11 +115,10 @@
    "note": "첫 화면에 공고성 최신글 없음"
   },
   {
-   "source": "농협중앙회 · 홈페이지 최신 공지",
-   "url": "https://www.nonghyup.com",
+   "source": "농협중앙회 · 사업·공모 공고",
+   "url": "https://www.nonghyup.com/ecenter/bid/bidList.do",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 9
   },
   {
    "source": "한국농촌경제연구원 · 사업·공모 공고",
@@ -214,40 +208,16 @@
    "error": "RemoteDisconnected: Remote end closed connection without response"
   },
   {
-   "source": "한국특허정보원 · 홈페이지 최신 공지",
-   "url": "https://www.kipi.or.kr",
+   "source": "한국특허정보원 · 사업·공모 공고",
+   "url": "https://www.kipi.or.kr/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_EEEEEEEEEEEE",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 4
   },
   {
    "source": "한국산업기술진흥원 · 사업·공모 공고",
    "url": "https://www.kiat.or.kr/front/board/boardContentsListPage.do?board_id=90",
-   "ok": false,
-   "count": 0,
-   "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
-   "diag": {
-    "bytes": 50869,
-    "title": "KIAT | HOME >",
-    "tr": 0,
-    "li": 96,
-    "dates": 1,
-    "long_links": 23,
-    "ajax_candidates": [
-     "/front/intropage/intropageInnerShowAjax.do",
-     "/front/user/main.do",
-     "/front/user/newsMail.do",
-     "/search/search.do?query=",
-     "/front/kakao/kakaoServicePage.do?brdType=1"
-    ],
-    "followups": []
-   }
-  },
-  {
-   "source": "한국산업기술진흥원 · 홈페이지 최신 공지",
-   "url": "https://www.kiat.or.kr",
    "ok": true,
-   "count": 13
+   "count": 15
   },
   {
    "source": "한국산업기술기획평가원 · 사업·공모 공고",
@@ -271,8 +241,7 @@
    "source": "연구개발특구진흥재단 · 홈페이지 최신 공지",
    "url": "https://www.innopolis.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 7
   },
   {
    "source": "한국연구재단 · 사업·공모 공고",
@@ -281,7 +250,7 @@
    "count": 0,
    "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
    "diag": {
-    "bytes": 1843537,
+    "bytes": 1843536,
     "title": "사업공고 - 신규사업공모",
     "tr": 0,
     "li": 1256,
@@ -303,8 +272,7 @@
    "source": "국가과학기술연구회 · 홈페이지 최신 공지",
    "url": "https://www.nst.re.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 20
   },
   {
    "source": "한국과학기술기획평가원 · 홈페이지 최신 공지",
@@ -329,8 +297,7 @@
    "source": "정보통신기획평가원 · 홈페이지 최신 공지",
    "url": "https://www.iitp.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 16
   },
   {
    "source": "한국보건산업진흥원 · 홈페이지 최신 공지",
@@ -343,8 +310,7 @@
    "source": "한국환경산업기술원 · 홈페이지 최신 공지",
    "url": "https://www.keiti.re.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 9
   },
   {
    "source": "해양수산과학기술진흥원 · 홈페이지 최신 공지",
@@ -353,24 +319,43 @@
    "count": 7
   },
   {
+   "source": "중소기업기술정보진흥원 · 사업·공모 공고",
+   "url": "https://www.tipa.or.kr/s040101",
+   "ok": false,
+   "count": 0,
+   "error": "목록을 찾지 못함 (자바스크립트로 불러오는 게시판일 수 있음)",
+   "diag": {
+    "bytes": 21374,
+    "title": "Main – 중소기업기술정보진흥원",
+    "tr": 0,
+    "li": 46,
+    "dates": 0,
+    "long_links": 23,
+    "ajax_candidates": [
+     "https://www.innogov.go.kr/ucms/main/main.do"
+    ],
+    "followups": []
+   }
+  },
+  {
    "source": "중소기업기술정보진흥원 · 홈페이지 최신 공지",
    "url": "https://www.tipa.or.kr",
+   "ok": true,
+   "count": 5,
+   "discovered_board": "https://www.tipa.or.kr/s040101"
+  },
+  {
+   "source": "기술보증기금 · 홈페이지 최신 공지",
+   "url": "https://www.kibo.or.kr",
    "ok": true,
    "count": 0,
    "note": "첫 화면에 공고성 최신글 없음"
   },
   {
-   "source": "기술보증기금 · 홈페이지 최신 공지",
-   "url": "https://www.kibo.or.kr",
-   "ok": false,
-   "count": 0,
-   "error": "URLError: <urlopen error timed out>"
-  },
-  {
-   "source": "한국산학연협회 · 홈페이지 최신 공지",
-   "url": "https://www.auri.or.kr",
+   "source": "한국산학연협회 · 사업·공모 공고",
+   "url": "https://www.auri.or.kr/sub/bbs/goBbsList?layoutSeqNo=2&bbsId=1",
    "ok": true,
-   "count": 2
+   "count": 5
   },
   {
    "source": "한국대학기술이전협회 · 홈페이지 최신 공지",
@@ -443,8 +428,7 @@
    "source": "청년창업사관학교 · 홈페이지 최신 공지",
    "url": "https://start.kosmes.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 4
   },
   {
    "source": "한국벤처투자 · 사업·공모 공고",
@@ -471,11 +455,10 @@
    "count": 2
   },
   {
-   "source": "초기투자액셀러레이터협회(구 한국액셀러레이터협회) · 홈페이지 최신 공지",
-   "url": "https://k-aia.or.kr",
+   "source": "초기투자액셀러레이터협회(구 한국액셀러레이터협회) · 사업·공모 공고",
+   "url": "https://www.k-aia.or.kr/community/01/",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 3
   },
   {
    "source": "한국초기투자기관협회 · 홈페이지 최신 공지",
@@ -518,15 +501,13 @@
    "source": "한국산업기술시험원 · 홈페이지 최신 공지",
    "url": "https://www.ktl.re.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 13
   },
   {
    "source": "한국국토정보공사 · 홈페이지 최신 공지",
    "url": "https://www.lx.or.kr",
    "ok": true,
-   "count": 0,
-   "note": "첫 화면에 공고성 최신글 없음"
+   "count": 4
   },
   {
    "source": "한국토지주택공사 · 사업·공모 공고",
@@ -538,64 +519,65 @@
  "clusters": [
   {
    "name": "입찰·용역",
-   "count": 7,
-   "groups": 5,
+   "count": 19,
+   "groups": 17,
    "sources": {
-    "기관 홈페이지": 6,
+    "기관 홈페이지": 18,
     "기업마당": 1
    },
    "types": {
-    "입찰·용역": 6,
+    "입찰·용역": 18,
     "기타공지": 1
    },
    "keywords": [
     "입찰",
     "구매",
+    "입찰공고",
+    "용역",
     "선정",
-    "시약",
-    "초자류",
-    "과학기술사업화진흥원"
+    "자세히보기"
    ]
   },
   {
    "name": "R&D·기술개발",
-   "count": 61,
-   "groups": 52,
+   "count": 91,
+   "groups": 78,
    "sources": {
-    "기업마당": 32,
-    "기관 홈페이지": 29
+    "기관 홈페이지": 59,
+    "기업마당": 32
    },
    "types": {
-    "모집·공모": 30,
-    "기타공지": 23,
-    "설명회·행사": 5,
+    "기타공지": 45,
+    "모집·공모": 33,
+    "설명회·행사": 7,
+    "입찰·용역": 3,
     "시행계획": 2,
-    "입찰·용역": 1
+    "결과발표": 1
    },
    "keywords": [
+    "채용",
+    "사업공고",
     "신규과제",
+    "채용공고",
     "신규지원",
-    "대상과제",
-    "지정",
-    "공모",
-    "연구개발과제"
+    "대상과제"
    ]
   },
   {
    "name": "기술사업화·이전",
-   "count": 52,
-   "groups": 52,
+   "count": 68,
+   "groups": 61,
    "sources": {
-    "기관 홈페이지": 43,
+    "기관 홈페이지": 59,
     "기업마당": 9
    },
    "types": {
-    "모집·공모": 20,
-    "기타공지": 19,
+    "모집·공모": 26,
+    "기타공지": 26,
+    "설명회·행사": 5,
     "입찰·용역": 5,
     "시행계획": 4,
-    "설명회·행사": 3,
-    "결과발표": 1
+    "결과발표": 2
    },
    "keywords": [
     "마감",
@@ -608,14 +590,14 @@
   },
   {
    "name": "창업·벤처",
-   "count": 63,
-   "groups": 58,
+   "count": 69,
+   "groups": 62,
    "sources": {
     "기업마당": 37,
-    "기관 홈페이지": 26
+    "기관 홈페이지": 32
    },
    "types": {
-    "모집·공모": 53,
+    "모집·공모": 59,
     "설명회·행사": 3,
     "기타공지": 3,
     "시행계획": 2,
@@ -632,17 +614,17 @@
   },
   {
    "name": "지식재산·특허",
-   "count": 79,
-   "groups": 53,
+   "count": 83,
+   "groups": 57,
    "sources": {
-    "기관 홈페이지": 66,
+    "기관 홈페이지": 70,
     "기업마당": 13
    },
    "types": {
-    "모집·공모": 26,
+    "모집·공모": 29,
     "입찰·용역": 22,
     "기타공지": 19,
-    "설명회·행사": 7,
+    "설명회·행사": 8,
     "결과발표": 5
    },
    "keywords": [
@@ -656,39 +638,39 @@
   },
   {
    "name": "농림·식품·해양",
-   "count": 139,
-   "groups": 104,
+   "count": 187,
+   "groups": 139,
    "sources": {
-    "기업마당": 73,
-    "기관 홈페이지": 66
+    "기관 홈페이지": 114,
+    "기업마당": 73
    },
    "types": {
-    "모집·공모": 82,
-    "입찰·용역": 24,
-    "기타공지": 15,
-    "결과발표": 9,
+    "모집·공모": 94,
+    "기타공지": 42,
+    "입찰·용역": 29,
+    "결과발표": 12,
     "시행계획": 6,
-    "설명회·행사": 3
+    "설명회·행사": 4
    },
    "keywords": [
     "유기농업자재",
     "인증",
     "유기질비료",
-    "농식품",
-    "용역",
-    "수산자원보호"
+    "선정",
+    "입찰",
+    "농식품"
    ]
   },
   {
    "name": "바이오·헬스",
-   "count": 12,
-   "groups": 11,
+   "count": 13,
+   "groups": 12,
    "sources": {
     "기업마당": 11,
-    "기관 홈페이지": 1
+    "기관 홈페이지": 2
    },
    "types": {
-    "모집·공모": 11,
+    "모집·공모": 12,
     "기타공지": 1
    },
    "keywords": [
@@ -702,39 +684,40 @@
   },
   {
    "name": "디지털·AI·데이터",
-   "count": 45,
-   "groups": 42,
+   "count": 65,
+   "groups": 57,
    "sources": {
     "기업마당": 37,
-    "기관 홈페이지": 8
+    "기관 홈페이지": 28
    },
    "types": {
-    "모집·공모": 35,
-    "기타공지": 4,
-    "입찰·용역": 3,
-    "시행계획": 2,
-    "설명회·행사": 1
+    "모집·공모": 42,
+    "기타공지": 9,
+    "입찰·용역": 6,
+    "설명회·행사": 4,
+    "결과발표": 2,
+    "시행계획": 2
    },
    "keywords": [
     "AI",
-    "구축사업",
+    "자세히보기",
+    "AI·ICT",
     "기반",
-    "데이터",
-    "수요기업",
-    "ICT"
+    "업무",
+    "IITP"
    ]
   },
   {
    "name": "에너지·환경·탄소",
-   "count": 26,
-   "groups": 25,
+   "count": 31,
+   "groups": 28,
    "sources": {
     "기업마당": 22,
-    "기관 홈페이지": 4
+    "기관 홈페이지": 9
    },
    "types": {
-    "모집·공모": 20,
-    "기타공지": 5,
+    "모집·공모": 22,
+    "기타공지": 8,
     "입찰·용역": 1
    },
    "keywords": [
@@ -748,25 +731,26 @@
   },
   {
    "name": "국토·건설·교통",
-   "count": 31,
-   "groups": 28,
+   "count": 34,
+   "groups": 30,
    "sources": {
-    "기관 홈페이지": 25,
+    "기관 홈페이지": 28,
     "기업마당": 6
    },
    "types": {
     "모집·공모": 19,
-    "기타공지": 10,
+    "기타공지": 12,
     "설명회·행사": 1,
-    "입찰·용역": 1
+    "입찰·용역": 1,
+    "결과발표": 1
    },
    "keywords": [
     "건설신기술",
     "지정",
+    "채용",
     "신청건",
     "관보공고",
-    "연장",
-    "인재채용"
+    "연장"
    ]
   },
   {
@@ -818,38 +802,39 @@
   },
   {
    "name": "금융·투자",
-   "count": 40,
-   "groups": 32,
+   "count": 41,
+   "groups": 33,
    "sources": {
     "기업마당": 33,
-    "기관 홈페이지": 7
+    "기관 홈페이지": 8
    },
    "types": {
     "기타공지": 24,
     "모집·공모": 13,
     "결과발표": 2,
-    "시행계획": 1
+    "시행계획": 1,
+    "설명회·행사": 1
    },
    "keywords": [
     "중소기업",
+    "계획",
     "지원계획",
     "출자사업",
-    "계획",
     "소상공인",
     "특례보증"
    ]
   },
   {
    "name": "인력·교육",
-   "count": 60,
-   "groups": 52,
+   "count": 62,
+   "groups": 54,
    "sources": {
     "기업마당": 54,
-    "기관 홈페이지": 6
+    "기관 홈페이지": 8
    },
    "types": {
-    "모집·공모": 50,
-    "기타공지": 9,
+    "모집·공모": 51,
+    "기타공지": 10,
     "결과발표": 1
    },
    "keywords": [
@@ -863,17 +848,18 @@
   },
   {
    "name": "경영·컨설팅·인증",
-   "count": 77,
-   "groups": 67,
+   "count": 82,
+   "groups": 72,
    "sources": {
-    "기업마당": 77
+    "기업마당": 77,
+    "기관 홈페이지": 5
    },
    "types": {
-    "모집·공모": 59,
-    "기타공지": 13,
-    "입찰·용역": 2,
-    "시행계획": 2,
-    "설명회·행사": 1
+    "모집·공모": 61,
+    "기타공지": 14,
+    "입찰·용역": 3,
+    "설명회·행사": 2,
+    "시행계획": 2
    },
    "keywords": [
     "컨설팅",
@@ -881,7 +867,7 @@
     "인센티브",
     "단체관광객",
     "유치",
-    "중소기업"
+    "연장"
    ]
   },
   {
