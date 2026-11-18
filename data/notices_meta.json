@@ -1,8 +1,8 @@
 {
- "collected_at": "2026-11-18T12:32:54+09:00",
+ "collected_at": "2026-11-18T12:54:02+09:00",
  "mode": "live",
- "total": 1051,
- "groups": 860,
+ "total": 1052,
+ "groups": 861,
  "sources": [
   {
    "source": "기업마당 (목록 페이지)",
@@ -302,16 +302,15 @@
    "source": "중소기업기술정보진흥원 · 홈페이지 최신 공지",
    "url": "https://www.tipa.or.kr",
    "ok": true,
-   "count": 5,
-   "discovered_board": "https://www.tipa.or.kr/s040101"
+   "count": 0,
+   "note": "첫 화면에 공고성 최신글 없음"
   },
   {
    "source": "기술보증기금 · 홈페이지 최신 공지",
    "url": "https://www.kibo.or.kr",
    "ok": true,
-   "count": 8,
-   "rendered": true,
-   "discovered_board": "https://www.kibo.or.kr/main/board/boardType01.do"
+   "count": 0,
+   "note": "첫 화면에 공고성 최신글 없음"
   },
   {
    "source": "한국산학연협회 · 사업·공모 공고",
@@ -494,14 +493,14 @@
   },
   {
    "name": "R&D·기술개발",
-   "count": 95,
-   "groups": 81,
+   "count": 96,
+   "groups": 82,
    "sources": {
-    "기관 홈페이지": 63,
+    "기관 홈페이지": 64,
     "기업마당": 32
    },
    "types": {
-    "기타공지": 45,
+    "기타공지": 46,
     "모집·공모": 36,
     "설명회·행사": 8,
     "입찰·용역": 3,
@@ -510,9 +509,9 @@
    },
    "keywords": [
     "채용",
+    "채용공고",
     "사업공고",
     "신규과제",
-    "채용공고",
     "신규지원",
     "대상과제"
    ]
