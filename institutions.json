@@ -471,9 +471,8 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "https://www.tipa.or.kr/s040101",
-      "공고경로확정": true,
-      "공고필터": true,
+      "공고게시판URL": "",
+      "공고경로확정": false,
       "렌더링": true
     },
     {
