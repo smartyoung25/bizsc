@@ -1,286 +1,406 @@
 {
- "collected_at": "2026-11-18T09:44:50+09:00",
- "mode": "seed",
- "total": 97,
- "groups": 92,
+ "collected_at": "2026-11-18T09:58:14+09:00",
+ "mode": "live",
+ "total": 628,
+ "groups": 541,
  "sources": [
   {
-   "source": "저장소 스냅샷(기업마당 엑셀·pub_items.json)",
+   "source": "기업마당 (목록 페이지)",
    "ok": true,
-   "count": 466
+   "count": 450
+  },
+  {
+   "source": "K-Startup (data.go.kr API)",
+   "ok": false,
+   "count": 0,
+   "error": "HTTPError: HTTP Error 403: Forbidden (data.go.kr에서 'K-Startup 사업공고' 활용신청 필요)"
+  },
+  {
+   "source": "농촌진흥청 · 입찰 공고",
+   "url": "https://www.rda.go.kr/board/board.do?mode=list&prgId=bid_bidancmEntry",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "한국농업기술진흥원 · 사업·공모 공고",
+   "url": "https://koat.or.kr/board/notice/list.do",
+   "ok": true,
+   "count": 11
+  },
+  {
+   "source": "한국농업기술진흥원 · 입찰 공고",
+   "url": "https://koat.or.kr/board/bid/list.do",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "농림식품기술기획평가원 · 입찰 공고",
+   "url": "https://www.ipet.re.kr/Notice/biddingLV.asp",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "지식재산처(구 특허청) · 입찰 공고",
+   "url": "https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200610&parntMenuCd2=SCD0200049",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "한국발명진흥회 · 입찰 공고",
+   "url": "https://www.kipa.org/kipa/notice/kw_0402.jsp?board_no=15",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "한국지식재산연구원 · 입찰 공고",
+   "url": "https://www.kiip.re.kr/board/notice/list.do?bd_gb=board&bd_cd=1&bd_item=0&po_item_gb=1&po_notice_gb=bid",
+   "ok": false,
+   "count": 0,
+   "error": "RemoteDisconnected: Remote end closed connection without response"
+  },
+  {
+   "source": "한국산업기술진흥원 · 사업·공모 공고",
+   "url": "https://www.kiat.or.kr/front/board/boardContentsListPage.do?board_id=90",
+   "ok": true,
+   "count": 0
+  },
+  {
+   "source": "한국산업기술기획평가원 · 사업·공모 공고",
+   "url": "https://srome.keit.re.kr/srome/biz/perform/opnnPrpsl/retrieveTaskAnncmListView.do?prgmId=XPG201040000",
+   "ok": true,
+   "count": 0
+  },
+  {
+   "source": "한국연구재단 · 사업·공모 공고",
+   "url": "https://www.nrf.re.kr/biz/notice/list?menu_no=362",
+   "ok": true,
+   "count": 0
+  },
+  {
+   "source": "정보통신산업진흥원 · 사업·공모 공고",
+   "url": "https://www.nipa.kr/home/2-2",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "중소벤처기업부 · 사업·공모 공고",
+   "url": "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310",
+   "ok": true,
+   "count": 10
+  },
+  {
+   "source": "K-Startup 창업지원포털 · 입찰 공고",
+   "url": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+   "ok": true,
+   "count": 15
   }
  ],
  "clusters": [
   {
    "name": "R&D·기술개발",
-   "count": 12,
-   "groups": 11,
+   "count": 49,
+   "groups": 46,
    "sources": {
-    "기업마당": 12
+    "기업마당": 49
    },
    "types": {
-    "모집·공모": 6,
-    "기타공지": 4,
-    "시행계획": 2
+    "모집·공모": 34,
+    "기타공지": 10,
+    "시행계획": 5
    },
    "keywords": [
     "수혜기업",
+    "중소기업",
     "통합",
-    "우수연구개발",
-    "혁신제품",
+    "기업지원",
     "지정",
-    "기간연장"
+    "맞춤형"
    ]
   },
   {
    "name": "기술사업화·이전",
-   "count": 5,
-   "groups": 5,
+   "count": 16,
+   "groups": 16,
    "sources": {
-    "기업마당": 5
+    "기업마당": 8,
+    "기관 홈페이지": 8
    },
    "types": {
-    "시행계획": 3,
-    "모집·공모": 2
+    "모집·공모": 9,
+    "시행계획": 4,
+    "기타공지": 2,
+    "입찰·용역": 1
    },
    "keywords": [
     "시행계획",
+    "AI",
     "기술사업화",
     "패키지",
-    "규제혁신",
     "연계",
-    "기술사업화지원사업"
+    "아태"
    ]
   },
   {
    "name": "창업·벤처",
-   "count": 19,
-   "groups": 18,
+   "count": 68,
+   "groups": 64,
    "sources": {
-    "기업마당": 19
+    "기업마당": 44,
+    "기관 홈페이지": 24
    },
    "types": {
-    "모집·공모": 18,
-    "시행계획": 1
+    "모집·공모": 60,
+    "설명회·행사": 3,
+    "입찰·용역": 3,
+    "시행계획": 2
    },
    "keywords": [
     "청년",
-    "참여자",
-    "창업",
-    "참가자",
-    "스타트업",
-    "분기"
+    "새로운게시글",
+    "담당부서",
+    "공고번호",
+    "첨부파일",
+    "등록일"
    ]
   },
   {
    "name": "지식재산·특허",
-   "count": 6,
-   "groups": 6,
+   "count": 35,
+   "groups": 26,
    "sources": {
-    "기업마당": 6
+    "기관 홈페이지": 23,
+    "기업마당": 12
    },
    "types": {
-    "모집·공모": 4,
-    "기타공지": 2
+    "입찰·용역": 19,
+    "모집·공모": 10,
+    "기타공지": 4,
+    "결과발표": 1,
+    "설명회·행사": 1
    },
    "keywords": [
+    "다운로드",
+    "pdf",
+    "대상",
     "지식재산",
-    "추가모집",
-    "경영인증",
-    "창원시",
-    "지식재산진흥",
-    "거래"
+    "첨단기술",
+    "출원"
    ]
   },
   {
    "name": "농림·식품·해양",
-   "count": 6,
-   "groups": 6,
+   "count": 50,
+   "groups": 37,
    "sources": {
-    "기업마당": 5,
-    "기관 홈페이지": 1
+    "기관 홈페이지": 36,
+    "기업마당": 14
    },
    "types": {
-    "모집·공모": 5,
-    "시행계획": 1
+    "입찰·용역": 21,
+    "모집·공모": 15,
+    "시행계획": 5,
+    "결과발표": 5,
+    "기타공지": 3,
+    "설명회·행사": 1
    },
    "keywords": [
-    "농림축산식품부",
-    "연구개발사업",
+    "입찰",
+    "용역",
+    "기술능력",
     "시행계획",
-    "통합",
-    "무안군",
-    "GAP인증농"
+    "분야",
+    "평가결"
    ]
   },
   {
    "name": "바이오·헬스",
-   "count": 1,
-   "groups": 1,
-   "sources": {
-    "기업마당": 1
-   },
-   "types": {
-    "모집·공모": 1
-   },
-   "keywords": [
-    "AI",
-    "기반",
-    "바이오",
-    "소재",
-    "융복합",
-    "제품"
-   ]
-  },
-  {
-   "name": "디지털·AI·데이터",
    "count": 8,
-   "groups": 7,
+   "groups": 8,
    "sources": {
     "기업마당": 8
    },
    "types": {
-    "모집·공모": 7,
-    "기타공지": 1
+    "모집·공모": 8
    },
    "keywords": [
-    "인공지능",
-    "상시",
-    "AI융합",
-    "지능형",
-    "농업",
-    "생태계"
+    "국내전시회",
+    "참가지원",
+    "국제의료기기",
+    "병원설비전시회",
+    "바이오",
+    "시험평가인증"
+   ]
+  },
+  {
+   "name": "디지털·AI·데이터",
+   "count": 33,
+   "groups": 31,
+   "sources": {
+    "기업마당": 30,
+    "기관 홈페이지": 3
+   },
+   "types": {
+    "모집·공모": 25,
+    "기타공지": 3,
+    "입찰·용역": 2,
+    "시행계획": 2,
+    "설명회·행사": 1
+   },
+   "keywords": [
+    "AI",
+    "기반",
+    "데이터",
+    "수요기업",
+    "ICT",
+    "중소기업"
    ]
   },
   {
    "name": "에너지·환경·탄소",
-   "count": 1,
-   "groups": 1,
+   "count": 14,
+   "groups": 13,
    "sources": {
-    "기업마당": 1
+    "기업마당": 14
    },
    "types": {
-    "모집·공모": 1
+    "모집·공모": 13,
+    "기타공지": 1
    },
    "keywords": [
     "친환경인증선박",
-    "보급지원사업"
+    "보급지원사업",
+    "보급사업",
+    "친환경",
+    "친환경농산물",
+    "고성군"
    ]
   },
   {
    "name": "수출·해외진출",
-   "count": 7,
-   "groups": 6,
+   "count": 62,
+   "groups": 61,
    "sources": {
-    "기업마당": 7
+    "기업마당": 62
    },
    "types": {
-    "모집·공모": 7
+    "모집·공모": 58,
+    "설명회·행사": 3,
+    "기타공지": 1
    },
    "keywords": [
-    "글로벌",
-    "식품",
-    "화장품",
-    "중국",
-    "안심수출",
-    "수출지원기반활용사업"
+    "중소기업",
+    "수출",
+    "전시회",
+    "수출기업",
+    "한국관",
+    "글로벌"
    ]
   },
   {
    "name": "판로·마케팅",
-   "count": 2,
-   "groups": 2,
+   "count": 23,
+   "groups": 23,
    "sources": {
-    "기업마당": 2
+    "기업마당": 23
    },
    "types": {
-    "모집·공모": 2
+    "모집·공모": 20,
+    "시행계획": 1,
+    "입찰·용역": 1,
+    "설명회·행사": 1
    },
    "keywords": [
-    "기획전",
-    "하반기",
-    "찾아가",
-    "가치소비",
-    "청년창업제품",
-    "온라인"
+    "온라인",
+    "서울패션위크",
+    "소상공인",
+    "춘계",
+    "트레이드쇼",
+    "홍보관"
    ]
   },
   {
    "name": "금융·투자",
-   "count": 4,
-   "groups": 4,
+   "count": 43,
+   "groups": 37,
    "sources": {
-    "기업마당": 4
+    "기업마당": 43
    },
    "types": {
-    "기타공지": 4
+    "기타공지": 27,
+    "모집·공모": 15,
+    "시행계획": 1
    },
    "keywords": [
-    "하반기",
-    "창업",
+    "소상공인",
     "중소기업",
-    "평택시",
-    "청년창업",
-    "특례보증"
+    "지원계획",
+    "특례보증",
+    "하반기",
+    "육성자금"
    ]
   },
   {
    "name": "인력·교육",
-   "count": 6,
-   "groups": 6,
+   "count": 46,
+   "groups": 40,
    "sources": {
-    "기업마당": 6
+    "기업마당": 46
    },
    "types": {
-    "모집·공모": 6
+    "모집·공모": 42,
+    "기타공지": 4
    },
    "keywords": [
-    "외국인",
-    "유학생",
-    "연계",
-    "창업기업",
-    "성장지원사업",
-    "인턴십"
+    "청년",
+    "사회연대경제",
+    "일경험",
+    "시범사업",
+    "일경험사업",
+    "수정"
    ]
   },
   {
    "name": "경영·컨설팅·인증",
-   "count": 16,
-   "groups": 16,
+   "count": 156,
+   "groups": 127,
    "sources": {
-    "기업마당": 16
+    "기업마당": 156
    },
    "types": {
-    "모집·공모": 13,
-    "기타공지": 2,
+    "모집·공모": 127,
+    "기타공지": 23,
+    "입찰·용역": 3,
+    "결과발표": 1,
+    "설명회·행사": 1,
     "시행계획": 1
    },
    "keywords": [
     "컨설팅",
-    "참여",
-    "지정",
-    "게임기업",
-    "서울형",
-    "강소기업"
+    "하반기",
+    "유기농업자재",
+    "인센티브",
+    "유기질비료",
+    "수산자원보호"
    ]
   },
   {
    "name": "지역·소상공인",
-   "count": 3,
-   "groups": 3,
+   "count": 24,
+   "groups": 16,
    "sources": {
-    "기업마당": 3
+    "기업마당": 24
    },
    "types": {
-    "모집·공모": 3
+    "모집·공모": 20,
+    "기타공지": 4
    },
    "keywords": [
-    "창업",
-    "지역특화형",
-    "스마트공장",
-    "구축지원사업",
-    "서리풀",
-    "소상공인"
+    "소상공인",
+    "카드수수료",
+    "참여점포",
+    "점포",
+    "평창군",
+    "참여자"
    ]
   },
   {
