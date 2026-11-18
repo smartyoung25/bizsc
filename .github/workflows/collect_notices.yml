@@ -11,7 +11,12 @@ on:
       - "scripts/collect_notices.py"
       - "scripts/notice_cluster.py"
       - "institutions.json"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "시험 수집할 기관명(쉼표 구분). 입력하면 해당 기관만 수집해 로그로 보여주고 데이터는 저장하지 않음"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -46,6 +51,7 @@ jobs:
           KSTARTUP_SERVICE_KEY: ${{ secrets.KSTARTUP_SERVICE_KEY }}
           G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
           PYTHONUNBUFFERED: "1"
+          NOTICE_ONLY: ${{ github.event.inputs.only }}
         run: python -u scripts/collect_notices.py
 
       - name: 변경사항 커밋 및 푸시

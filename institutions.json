@@ -437,8 +437,10 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.khidi.or.kr/board?menuId=MENU01108",
+      "공고경로확정": false,
+      "렌더링": true,
+      "공고필터": true
     },
     {
       "분야": "기술사업화",
@@ -540,8 +542,10 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.kised.or.kr/misAnnouncement/index.es?mid=a10302000000",
+      "공고경로확정": false,
+      "렌더링": true,
+      "공고필터": true
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -550,9 +554,9 @@
       "홈페이지": "www.k-startup.go.kr",
       "활성화": true,
       "경로확정": true,
-      "게시판URL": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "게시판URL": "",
+      "공고게시판URL": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+      "공고경로확정": true
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -562,8 +566,10 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://portal.smes.go.kr/home/req/pbanc",
+      "공고경로확정": false,
+      "렌더링": true,
+      "공고필터": true
     },
     {
       "분야": "창업·엑셀러레이터",
@@ -595,8 +601,10 @@
       "활성화": true,
       "경로확정": false,
       "게시판URL": "",
-      "공고게시판URL": "",
-      "공고경로확정": false
+      "공고게시판URL": "https://www.sbiz24.kr/#/pbanc",
+      "공고경로확정": false,
+      "렌더링": true,
+      "공고필터": true
     },
     {
       "분야": "창업·엑셀러레이터",
