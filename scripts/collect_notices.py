@@ -529,8 +529,78 @@ class Renderer:
         finally:
             ctx.close()
 
+    LINKS_JS = """() => Array.from(document.querySelectorAll('a')).map((a, i) => ({
+        i, text: (a.innerText || a.textContent || '').replace(/\\s+/g, ' ').trim(),
+        href: a.getAttribute('href') || '', abs: a.href || ''}))"""
+    # 날짜가 들어 있는 '가장 작은' 목록 상자를 찾아 텍스트와 첫 링크를 돌려준다 (<a> 없이 카드로 된 목록용)
+    CARDS_JS = """() => {
+      const re = /20\\d{2}\\s*[.\\-\\/년]\\s*\\d{1,2}\\s*[.\\-\\/월]\\s*\\d{1,2}/;
+      const els = Array.from(document.querySelectorAll('li, tr, dl, article, div, a'));
+      const hits = els.filter(e => { const t = (e.innerText || '').trim();
+        return t.length >= 12 && t.length <= 400 && re.test(t); });
+      const minimal = hits.filter(e => !hits.some(o => o !== e && e.contains(o)));
+      return minimal.slice(0, 80).map(e => { const a = e.closest('a') || e.querySelector('a');
+        return {text: e.innerText, href: a ? a.href : ''}; });
+    }"""
+
+    def _rows(self, page):
+        rows = [r for r in parse_board(page.content(), page.url) if NOTICE_WORDS.search(r[0])][:20]
+        if len(rows) >= 2:
+            return rows
+        try:
+            cards = page.evaluate(self.CARDS_JS)
+        except Exception:  # noqa: BLE001
+            return rows
+        out, seen = [], set()
+        for c in cards:
+            text = c.get("text") or ""
+            date, period = block_dates(text)
+            lines = [clean_title(x.strip()) for x in text.split("\n")]
+            lines = [x for x in lines if len(x) >= 8 and not DATE_RE.fullmatch(x) and not RANGE_RE.search(x)]
+            if not date or not lines:
+                continue
+            title = max(lines, key=len)[:200]
+            href = c.get("href") or ""
+            if not href or href.lower().startswith("javascript") or href.endswith("#"):
+                href = page.url
+            if (title, date) in seen or not NOTICE_WORDS.search(title):
+                continue
+            seen.add((title, date))
+            out.append((title, href, date, period))
+        return out[:20] if len(out) > len(rows) else rows
+
+    def get_rows(self, url):
+        """렌더링 후 목록 행을 돌려준다 (렌더링=true 게시판 수집용)."""
+        if not self._start():
+            raise RuntimeError("렌더링 사용 불가")
+        ctx, page = self._page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            self._settle(page)
+            return self._rows(page), page.url
+        finally:
+            ctx.close()
+
+    def _go(self, page, home_url, ln):
+        """메뉴 링크로 이동: 일반 주소는 goto, 'javascript:함수()'는 홈에서 그 코드를 실행, 그 외는 클릭."""
+        href = ln["href"].strip()
+        if href.lower().startswith("javascript:") and len(href) > 12:
+            page.goto(home_url, wait_until="domcontentloaded", timeout=30000)
+            self._settle(page)
+            try:
+                page.evaluate("code => { (0, eval)(code); }", urllib.parse.unquote(href[11:]))
+            except Exception:  # noqa: BLE001  (이동하면서 실행 컨텍스트가 사라지는 경우)
+                pass
+        elif ln["abs"] and not href.startswith("#") and ln["abs"].split("#")[0] != home_url.split("#")[0]:
+            page.goto(ln["abs"], wait_until="domcontentloaded", timeout=30000)
+        else:
+            page.goto(home_url, wait_until="domcontentloaded", timeout=30000)
+            self._settle(page)
+            page.locator("a").nth(ln["i"]).click(timeout=8000, force=True)
+        self._settle(page)
+
     def discover(self, url, max_tries=6):
-        """렌더링된 홈페이지에서 공고 메뉴를 찾아 (링크 이동 또는 클릭으로) 들어가 목록을 읽는다."""
+        """렌더링된 홈페이지에서 공고 메뉴를 찾아 (링크 이동·자바스크립트 실행·클릭으로) 들어가 목록을 읽는다."""
         if not self._start():
             return None
         ctx, page = self._page()
@@ -538,44 +608,52 @@ class Renderer:
             page.goto(url, wait_until="domcontentloaded", timeout=30000)
             self._settle(page)
             home_url = page.url
-            links = page.evaluate("""() => Array.from(document.querySelectorAll('a')).map((a, i) => ({
-                i, text: (a.innerText || a.textContent || '').replace(/\\s+/g, ' ').trim(),
-                href: a.href || ''}))""")
+            links = page.evaluate(self.LINKS_JS)
+            if len(links) < 25:
+                # 인트로·랜딩 페이지: 같은 사이트의 본 페이지로 한 번 더 들어간다
+                host = urllib.parse.urlsplit(home_url).hostname or ""
+                enter = [ln for ln in links if "//" in ln["abs"] and not SKIP_FOLLOW.search(ln["abs"])
+                         and _same_site(urllib.parse.urlsplit(ln["abs"]).hostname or "", host)
+                         and ln["abs"].split("#")[0] != home_url.split("#")[0]]
+                enter.sort(key=lambda ln: 0 if re.search(r"메인|홈|바로가기|입장|들어가기|ENTER|enter|main|Main", ln["text"] + ln["abs"]) else 1)
+                for ln in enter[:2]:
+                    try:
+                        page.goto(ln["abs"], wait_until="domcontentloaded", timeout=30000)
+                        self._settle(page)
+                        more = page.evaluate(self.LINKS_JS)
+                    except Exception:  # noqa: BLE001
+                        continue
+                    if len(more) > len(links):
+                        home_url, links = page.url, more
+                        break
+            host = urllib.parse.urlsplit(home_url).hostname or ""
             cands = []
             for ln in links:
                 for pat, prio in BOARD_MENU:
                     if pat.match(ln["text"]):
-                        href = ln["href"]
-                        if href and (href.lower().startswith("javascript") or href.endswith("#")):
-                            href = ""
-                        if href and (SKIP_FOLLOW.search(href) or not _same_site(
-                                urllib.parse.urlsplit(href).hostname or "", urllib.parse.urlsplit(home_url).hostname or "")):
+                        absu = ln["abs"]
+                        if absu.startswith("http") and not ln["href"].lower().startswith("javascript") and (
+                                SKIP_FOLLOW.search(absu) or not _same_site(urllib.parse.urlsplit(absu).hostname or "", host)):
                             break
-                        cands.append((prio, ln["i"], href))
+                        cands.append((prio, ln))
                         break
             tried = set()
-            for prio, idx, href in sorted(cands):
-                key = href or f"#{idx}"
+            for prio, ln in sorted(cands, key=lambda c: c[0]):
+                key = ln["href"] if ln["href"] and not ln["href"].startswith("#") else f"#{ln['i']}"
                 if key in tried:
                     continue
                 tried.add(key)
                 if len(tried) > max_tries:
                     break
                 try:
-                    if href:
-                        page.goto(href, wait_until="domcontentloaded", timeout=30000)
-                    else:  # href 없이 onclick으로 이동하는 메뉴
-                        page.goto(home_url, wait_until="domcontentloaded", timeout=30000)
-                        self._settle(page)
-                        page.locator("a").nth(idx).click(timeout=8000, force=True)
-                    self._settle(page)
+                    self._go(page, home_url, ln)
                 except Exception:  # noqa: BLE001
                     continue
-                rows = [r for r in parse_board(page.content(), page.url) if NOTICE_WORDS.search(r[0])][:20]
+                rows = self._rows(page)
                 if len(rows) >= 2:
                     return page.url, rows
             # 못 찾았으면 사람이 고를 수 있게 공고 관련 메뉴 후보를 로그로 남긴다
-            hints = [f"{ln['text'][:20]}|{ln['href'][:120]}" for ln in links
+            hints = [f"{ln['text'][:20]}|{(ln['abs'] or ln['href'])[:120]}" for ln in links
                      if ln["text"] and len(ln["text"]) <= 20 and MENU_HINT.search(ln["text"])][:25]
             log(f"  [메뉴 진단] {url} (최종 {home_url}, 링크 {len(links)}개, 시도 {len(tried)}개): " + " ; ".join(hints))
             return None
@@ -617,8 +695,12 @@ def collect_boards(institutions, status):
             is_home = label == HOMEPAGE_LABEL
             try:
                 use_render = bool(inst.get("렌더링")) and label != "입찰 공고"
-                html, final = RENDERER.get(url) if use_render else http_get(url)
-                rows = parse_board(html, final, limit=60 if is_home else BOARD_MAX_ROWS)
+                if use_render and not is_home:
+                    rows, final = RENDERER.get_rows(url)
+                    html = ""
+                else:
+                    html, final = RENDERER.get(url) if use_render else http_get(url)
+                    rows = parse_board(html, final, limit=60 if is_home else BOARD_MAX_ROWS)
                 if is_home:
                     rows = [r for r in rows if NOTICE_WORDS.search(r[0])][:20]
                     discovered = ""
@@ -673,8 +755,7 @@ def collect_boards(institutions, status):
                             break
                 if not rows and not use_render:
                     try:
-                        rh, rf = RENDERER.get(url)
-                        rows = parse_board(rh, rf)
+                        rows, _ = RENDERER.get_rows(url)
                         if rows and inst.get("공고필터"):
                             rows = [r for r in rows if NOTICE_WORDS.search(r[0])]
                         if rows:
