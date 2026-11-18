@@ -478,6 +478,118 @@ def discover_board(html, base_url, max_tries=4):
 NOTICE_WORDS = re.compile(r"공고|모집|공모|입찰|선정|신청|접수|지원사업|수요조사|참여기업|설명회|제안요청")
 
 
+# ---------------- 브라우저 렌더링 (자바스크립트로 그리는 사이트용) ----------------
+class Renderer:
+    """Playwright(헤드리스 Chromium)로 페이지를 띄워 자바스크립트가 그린 뒤의 HTML을 얻는다.
+    playwright가 설치돼 있지 않으면 조용히 비활성화된다 (로컬 실행 등)."""
+
+    def __init__(self):
+        self._pw = self._browser = None
+        self.available = None
+
+    def _start(self):
+        if self.available is not None:
+            return self.available
+        try:
+            from playwright.sync_api import sync_playwright
+            self._pw = sync_playwright().start()
+            # PW_CHROMIUM_PATH: 미리 설치된 Chromium을 쓸 때 (Actions에서는 비워 두면 playwright가 설치한 것을 사용)
+            self._browser = self._pw.chromium.launch(executable_path=os.environ.get("PW_CHROMIUM_PATH") or None)
+            self.available = True
+        except Exception as e:  # noqa: BLE001
+            log(f"[렌더링] 사용 불가 ({type(e).__name__}) — 정적 수집만 진행")
+            self.available = False
+        return self.available
+
+    def _page(self):
+        ctx = self._browser.new_context(user_agent=UA, locale="ko-KR", ignore_https_errors=False)
+        page = ctx.new_page()
+        page.set_default_timeout(20000)
+        return ctx, page
+
+    @staticmethod
+    def _settle(page):
+        try:
+            page.wait_for_load_state("networkidle", timeout=12000)
+        except Exception:  # noqa: BLE001
+            pass
+        page.wait_for_timeout(1200)
+
+    def get(self, url):
+        if not self._start():
+            raise RuntimeError("렌더링 사용 불가")
+        ctx, page = self._page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            self._settle(page)
+            return page.content(), page.url
+        finally:
+            ctx.close()
+
+    def discover(self, url, max_tries=4):
+        """렌더링된 홈페이지에서 공고 메뉴를 찾아 (링크 이동 또는 클릭으로) 들어가 목록을 읽는다."""
+        if not self._start():
+            return None
+        ctx, page = self._page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            self._settle(page)
+            home_url = page.url
+            links = page.evaluate("""() => Array.from(document.querySelectorAll('a')).map((a, i) => ({
+                i, text: (a.innerText || a.textContent || '').replace(/\\s+/g, ' ').trim(),
+                href: a.href || ''}))""")
+            cands = []
+            for ln in links:
+                for pat, prio in BOARD_MENU:
+                    if pat.match(ln["text"]):
+                        href = ln["href"]
+                        if href and (href.lower().startswith("javascript") or href.endswith("#")):
+                            href = ""
+                        if href and (SKIP_FOLLOW.search(href) or not _same_site(
+                                urllib.parse.urlsplit(href).hostname or "", urllib.parse.urlsplit(home_url).hostname or "")):
+                            break
+                        cands.append((prio, ln["i"], href))
+                        break
+            tried = set()
+            for prio, idx, href in sorted(cands):
+                key = href or f"#{idx}"
+                if key in tried:
+                    continue
+                tried.add(key)
+                if len(tried) > max_tries:
+                    break
+                try:
+                    if href:
+                        page.goto(href, wait_until="domcontentloaded", timeout=30000)
+                    else:  # href 없이 onclick으로 이동하는 메뉴
+                        page.goto(home_url, wait_until="domcontentloaded", timeout=30000)
+                        self._settle(page)
+                        page.locator("a").nth(idx).click(timeout=8000, force=True)
+                    self._settle(page)
+                except Exception:  # noqa: BLE001
+                    continue
+                rows = [r for r in parse_board(page.content(), page.url) if NOTICE_WORDS.search(r[0])][:20]
+                if len(rows) >= 2:
+                    return page.url, rows
+            return None
+        except Exception:  # noqa: BLE001
+            return None
+        finally:
+            ctx.close()
+
+    def close(self):
+        try:
+            if self._browser:
+                self._browser.close()
+            if self._pw:
+                self._pw.stop()
+        except Exception:  # noqa: BLE001
+            pass
+
+
+RENDERER = Renderer()
+
+
 def collect_boards(institutions, status):
     out = []
     for inst in institutions:
@@ -497,7 +609,8 @@ def collect_boards(institutions, status):
             name = f"{inst['기관명']} · {label}"
             is_home = label == HOMEPAGE_LABEL
             try:
-                html, final = http_get(url)
+                use_render = bool(inst.get("렌더링")) and label != "입찰 공고"
+                html, final = RENDERER.get(url) if use_render else http_get(url)
                 rows = parse_board(html, final, limit=60 if is_home else BOARD_MAX_ROWS)
                 if is_home:
                     rows = [r for r in rows if NOTICE_WORDS.search(r[0])][:20]
@@ -509,7 +622,25 @@ def collect_boards(institutions, status):
                             discovered, brows = found
                             rows = brows
                             log(f"  [게시판 자동탐색] {name}: {discovered} → {len(rows)}건")
+                    rendered = False
+                    if len(rows) < 3 and not use_render:
+                        # 그래도 없으면 브라우저로 띄워서(자바스크립트 실행 후) 다시 찾는다
+                        try:
+                            rh, rf = RENDERER.get(url)
+                            rrows = [r for r in parse_board(rh, rf, limit=60) if NOTICE_WORDS.search(r[0])][:20]
+                            if len(rrows) > len(rows):
+                                rows, rendered = rrows, True
+                            if len(rows) < 3:
+                                found = RENDERER.discover(url)
+                                if found:
+                                    discovered, rows = found
+                                    rendered = True
+                                    log(f"  [게시판 자동탐색·렌더링] {name}: {discovered} → {len(rows)}건")
+                        except Exception as e:  # noqa: BLE001
+                            log(f"  [렌더링] {name}: 실패 - {str(e)[:100]}")
                     st = {"source": name, "url": url, "ok": True, "count": len(rows)}
+                    if rendered:
+                        st["rendered"] = True
                     if discovered:
                         st["discovered_board"] = discovered
                     elif not rows:
@@ -533,6 +664,16 @@ def collect_boards(institutions, status):
                         if rows:
                             log(f"  [게시판] {name}: 연결 페이지에서 목록 발견 → {nxt}")
                             break
+                if not rows and not use_render:
+                    try:
+                        rh, rf = RENDERER.get(url)
+                        rows = parse_board(rh, rf)
+                        if rows and inst.get("공고필터"):
+                            rows = [r for r in rows if NOTICE_WORDS.search(r[0])]
+                        if rows:
+                            log(f"  [게시판] {name}: 렌더링으로 목록 확인 (institutions.json에 렌더링=true 권장)")
+                    except Exception:  # noqa: BLE001
+                        pass
                 if not rows:
                     diag = board_diag(html)
                     log(f"  [게시판 진단] {name}: {json.dumps(diag, ensure_ascii=False)}")
@@ -700,7 +841,10 @@ def main():
         else:
             status.append({"source": "K-Startup (data.go.kr API)", "ok": False, "count": 0, "error": "서비스키 없음"})
         # 3) 공공기관 게시판
-        new.extend(collect_boards(insts, status))
+        try:
+            new.extend(collect_boards(insts, status))
+        finally:
+            RENDERER.close()
 
     for n in new:
         n.setdefault("first_seen", stamp)
