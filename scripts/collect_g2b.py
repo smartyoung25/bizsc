@@ -62,13 +62,17 @@ META_PATH = os.path.join(DATA_DIR, "meta.json")
 RETENTION_DAYS = 120
 
 # 매일 실행되지만, 누락 방지를 위해 최근 10일치를 겹치게 조회합니다.
-LOOKBACK_DAYS = 10
+LOOKBACK_DAYS = 12
 
 # 일시적 오류 재시도: 최대 3회 재시도, 재시도 전 대기 시간(초)
 RETRY_SLEEPS = [2, 5, 10]
 RETRY_HTTP_CODES = {403, 429, 500, 502, 503, 504}
 # (operation, keyword) 호출 사이의 간격(초) - 연속 호출로 인한 속도 제한 완화
 CALL_INTERVAL_SEC = 0.5
+
+
+class RangeError(RuntimeError):
+    """API 오류 코드 07(입력범위값 초과) — 조회기간·건수 조건을 줄이면 해결되는 오류."""
 
 
 class TransientError(Exception):
@@ -167,6 +171,8 @@ def unwrap_items(data: dict):
         # 헤더가 아예 없거나 정상 코드가 아니면 오류로 본다 (이전에는 빈 결과로 조용히 넘어갔음)
         msg = ERROR_MESSAGES.get(code, header.get("resultMsg") or header.get("returnAuthMsg") or "")
         snippet = json.dumps(data, ensure_ascii=False)[:300]
+        if code == "07":
+            raise RangeError(f"API 오류 (코드 07): {msg} | 응답: {snippet}")
         raise RuntimeError(f"API 오류 (코드 {code or '없음'}): {msg} | 응답: {snippet}")
 
     body = (response or {}).get("body", {}) or {}
@@ -187,10 +193,10 @@ def unwrap_items(data: dict):
 _SAMPLE_LOGGED = False
 
 
-def fetch_all(service_key: str, op_code: str, keyword: str, begin_dt: str, end_dt: str):
+def fetch_all(service_key: str, op_code: str, keyword: str, begin_dt: str, end_dt: str,
+              num_of_rows: int = 100):
     all_items = []
     page_no = 1
-    num_of_rows = 100
     while True:
         data = api_request(service_key, op_code, {
             "inqryDiv": "1",
@@ -211,6 +217,51 @@ def fetch_all(service_key: str, op_code: str, keyword: str, begin_dt: str, end_d
         page_no += 1
         time.sleep(0.2)
     return all_items
+
+
+# 2026-11-10 무렵부터 API가 기존 조건(10일 기간, 종료시각 당일 23:59, 100건/페이지)에
+# 오류 07(입력범위값 초과)을 반환하기 시작했다. 허용 범위가 공지 없이 바뀔 수 있으므로,
+# 실행할 때마다 아래 후보를 순서대로 시험해 처음 통과하는 조건으로 수집한다.
+#   (조회기간 일수, 종료시각을 현재시각으로 제한할지, 페이지당 건수)
+QUERY_CANDIDATES = [
+    (LOOKBACK_DAYS, True, 100),
+    (7, True, 100),
+    (3, True, 100),
+    (1, True, 100),
+    (1, True, 50),
+    (1, True, 10),
+    (LOOKBACK_DAYS, False, 100),  # 예전 방식
+]
+
+
+def build_windows(now, window_days: int, end_now: bool):
+    """최근 LOOKBACK_DAYS 를 window_days 단위 구간으로 나눈다. (최신 구간부터)"""
+    start_all = (now - timedelta(days=LOOKBACK_DAYS)).replace(hour=0, minute=0, second=0, microsecond=0)
+    end_all = now if end_now else now.replace(hour=23, minute=59)
+    windows = []
+    end = end_all
+    while end > start_all:
+        start = max(start_all, end - timedelta(days=window_days) + timedelta(minutes=1))
+        windows.append((start.strftime("%Y%m%d%H%M"), end.strftime("%Y%m%d%H%M")))
+        end = start - timedelta(minutes=1)
+    return windows
+
+
+def probe_query_config(service_key: str, now):
+    op_code = OPERATIONS[0][0]
+    kw = KEYWORDS[0]
+    for window_days, end_now, rows in QUERY_CANDIDATES:
+        b, e = build_windows(now, window_days, end_now)[0]
+        try:
+            fetch_all(service_key, op_code, kw, b, e, rows)
+            print(f"[조회조건 확인] 기간 {window_days}일 단위 / 종료시각 {'현재' if end_now else '당일 23:59'} / "
+                  f"{rows}건씩 → 사용 가능", flush=True)
+            return window_days, end_now, rows
+        except RangeError as ex:
+            print(f"[조회조건 확인] 기간 {window_days}일 / 종료 {'현재' if end_now else '23:59'} / {rows}건 → {ex}",
+                  file=sys.stderr, flush=True)
+        time.sleep(CALL_INTERVAL_SEC)
+    return None
 
 
 def is_excluded(title: str) -> bool:
@@ -260,11 +311,14 @@ def main():
     print(f"[서비스키] 길이 {len(service_key)}자로 확인됨", flush=True)
 
     now = datetime.now(KST)
-    begin = now - timedelta(days=LOOKBACK_DAYS)
-    begin_dt = begin.strftime("%Y%m%d0000")
-    end_dt = now.strftime("%Y%m%d2359")
-
-    print(f"[수집 범위] {begin_dt} ~ {end_dt}", flush=True)
+    config = probe_query_config(service_key, now)
+    if not config:
+        print("모든 조회조건 후보가 오류 07(입력범위값 초과)로 거부되었습니다. data.go.kr의 "
+              "입찰공고정보서비스 명세 변경 여부를 확인하세요.", file=sys.stderr, flush=True)
+        sys.exit(1)
+    window_days, end_now, num_rows = config
+    windows = build_windows(now, window_days, end_now)
+    print(f"[수집 범위] {windows[-1][0]} ~ {windows[0][1]} ({len(windows)}개 구간)", flush=True)
 
     raw_count = 0
     filtered = []
@@ -278,7 +332,11 @@ def main():
             time.sleep(CALL_INTERVAL_SEC)
             print(f"[조회] {business_label} / {kw}", flush=True)
             try:
-                items = fetch_all(service_key, op_code, kw, begin_dt, end_dt)
+                items = []
+                for begin_dt, end_dt in windows:
+                    items.extend(fetch_all(service_key, op_code, kw, begin_dt, end_dt, num_rows))
+                    if len(windows) > 1:
+                        time.sleep(0.2)
             except Exception as e:
                 # 한 호출의 실패로 전체 실행을 중단하지 않고, 기록만 남기고 다음으로 진행
                 failed_calls.append(f"{op_code}/{kw}")
