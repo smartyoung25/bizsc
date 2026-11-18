@@ -151,9 +151,13 @@ def norm_date(s: str) -> str:
         return ""
     y, mo, d = m.groups()
     try:
-        return datetime(int(y), int(mo), int(d)).strftime("%Y-%m-%d")
+        dt = datetime(int(y), int(mo), int(d))
     except ValueError:
         return ""
+    # 게시판 상단 고정글에 쓰이는 2099-12-31 같은 가짜 날짜는 버린다 (내년 말 이후)
+    if dt.year > datetime.now().year + 1:
+        return ""
+    return dt.strftime("%Y-%m-%d")
 
 
 def period_dates(period: str):
@@ -306,8 +310,14 @@ POSTED_LABEL = re.compile(r"(등록일|작성일|게시일|공고일|등록)\s*[
 RANGE_RE = re.compile(r"(20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2})[^0-9]{0,12}~\s*(20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2})")
 
 
+TITLE_HEAD = re.compile(r"^\s*(새\s*글|새로운\s*게시글|NEW|new|N|공지)\s*(-+>|→|:|\|)?\s*")
+# 공고가 아닌 글(보도자료 등)은 기관 게시판 수집에서 제외
+NOT_NOTICE = re.compile(r"보도\s*자료|보도\s*참고|보도\s*해명|설명\s*자료|카드\s*뉴스|채용\s*공고|인사\s*발령")
+
+
 def clean_title(t: str) -> str:
     t = TITLE_CUT.sub("", t).strip()
+    t = TITLE_HEAD.sub("", t).strip()
     for _ in range(3):  # "공고.pdf 다운로드", "모집 새로운게시글 N" 처럼 꼬리가 겹친 경우
         t2 = TITLE_TAIL.sub("", t).strip()
         if t2 == t:
@@ -785,7 +795,8 @@ def collect_boards(institutions, status):
                 status.append({"source": name, "url": url, "ok": False, "count": 0, "error": str(e)[:160]})
                 log(f"  [게시판] {name}: 실패 - {e}")
             time.sleep(0.5)
-    return out
+    # 보도자료·채용 등 공고가 아닌 글 제외
+    return [o for o in out if not NOT_NOTICE.search(o["title"])]
 
 
 # ---------------- 시드 (저장소 내 로컬 자료) ----------------
@@ -838,6 +849,15 @@ def sanitize_board_items(items):
                 it["period"] = period
                 it["deadline"] = period_dates(period)[1]
             it["title"] = clean_title(raw)
+            if NOT_NOTICE.search(it["title"]):
+                continue
+            if it.get("posted") and not norm_date(it["posted"]):
+                it["posted"] = it.get("first_seen", "")
+            # 목록에 마감일만 있는 게시판: 미래 날짜가 '게시일'로 잡히면 마감일로 옮긴다
+            if it.get("posted", "") > now_kst().strftime("%Y-%m-%d"):
+                if not it.get("deadline"):
+                    it["deadline"] = it["posted"]
+                it["posted"] = it.get("first_seen", "")
             it["id"] = make_id("기관 홈페이지", f"{it['org']}|{it['title']}|{it.get('posted', '')}")
         out[it["id"]] = it
     return list(out.values())
